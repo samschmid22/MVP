@@ -1,9 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useMemo, useState } from 'react';
-import { FlatList, Pressable, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import { Alert, FlatList, Modal, Pressable, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
 import { useAppStore } from '../storage/appStore';
-import { ExerciseCategory } from '../types/models';
+import { Exercise, ExerciseCategory } from '../types/models';
 import { AppText, Button, Card, Chip, Screen, SectionHeader } from '../ui/components';
 import { brandByCategory, uiTheme } from '../ui/theme';
 
@@ -24,6 +24,7 @@ export const LibraryScreen = () => {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<'All' | ExerciseCategory>('All');
   const [favoritesOnly, setFavoritesOnly] = useState(false);
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
 
   const exercises = useAppStore((state) => state.exercises);
   const favoriteExerciseIds = useAppStore((state) => state.user.favoriteExerciseIds);
@@ -46,10 +47,6 @@ export const LibraryScreen = () => {
 
   return (
     <Screen>
-      <View pointerEvents="none" style={styles.washWrap}>
-        <LinearGradient colors={uiTheme.gradients.wash} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0.6 }} style={styles.wash} />
-      </View>
-
       <FlatList
         data={filtered}
         key={String(columns)}
@@ -61,6 +58,7 @@ export const LibraryScreen = () => {
         ListHeaderComponent={
           <View style={styles.header}>
             <SectionHeader title="Exercise Library" subtitle="Browse moves with quick filters and favorites." />
+            <LinearGradient colors={uiTheme.gradients.brandSoft} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.headerAccent} />
             <View style={styles.searchWrap}>
               <Ionicons name="search" size={18} color={uiTheme.colors.muted} />
               <TextInput
@@ -103,51 +101,79 @@ export const LibraryScreen = () => {
           const accent = brandByCategory[item.category];
           const isFavorite = favoriteExerciseIds.includes(item.id);
           return (
-            <Card style={styles.exerciseCard}>
-              <LinearGradient colors={uiTheme.gradients.brandSoft} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.cardTop} />
-              <View style={styles.cardHeader}>
-                <View style={[styles.cardThumb, { backgroundColor: `${accent}20` }]}>
-                  <Ionicons name="accessibility-outline" size={20} color={accent} />
+            <Pressable style={styles.exerciseCardPressable} onPress={() => setSelectedExercise(item)}>
+              <Card style={styles.exerciseCard}>
+                <LinearGradient colors={uiTheme.gradients.brandSoft} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.cardTop} />
+                <View style={styles.cardHeader}>
+                  <View style={[styles.cardThumb, { backgroundColor: `${accent}20` }]}>
+                    <Ionicons name="accessibility-outline" size={20} color={accent} />
+                  </View>
+                  <Pressable
+                    onPress={(event) => {
+                      event.stopPropagation();
+                      toggleFavorite(item.id);
+                    }}
+                    hitSlop={8}
+                    style={styles.heartButton}
+                  >
+                    <Ionicons
+                      name={isFavorite ? 'heart' : 'heart-outline'}
+                      size={18}
+                      color={isFavorite ? uiTheme.colors.brandPink : uiTheme.colors.muted}
+                    />
+                  </Pressable>
                 </View>
-                <Pressable onPress={() => toggleFavorite(item.id)} hitSlop={8} style={styles.heartButton}>
-                  <Ionicons
-                    name={isFavorite ? 'heart' : 'heart-outline'}
-                    size={18}
-                    color={isFavorite ? uiTheme.colors.brandPink : uiTheme.colors.muted}
-                  />
-                </Pressable>
-              </View>
-              <AppText variant="h3" numberOfLines={2}>
-                {item.name}
-              </AppText>
-              <AppText variant="caption" style={styles.mutedText}>
-                {item.defaultDurationSec}s • {item.difficulty}
-              </AppText>
-              <View style={styles.tags}>
-                {item.tags.slice(0, 2).map((tag) => (
-                  <Chip key={tag} label={tag} style={styles.tagChip} />
-                ))}
-              </View>
-            </Card>
+                <AppText variant="h3" numberOfLines={2}>
+                  {item.name}
+                </AppText>
+                <AppText variant="caption" style={styles.mutedText}>
+                  {item.defaultDurationSec}s • {item.difficulty}
+                </AppText>
+                <View style={styles.tags}>
+                  {item.tags.slice(0, 2).map((tag) => (
+                    <Chip key={tag} label={tag} style={styles.tagChip} />
+                  ))}
+                </View>
+              </Card>
+            </Pressable>
           );
         }}
       />
+      <Modal
+        animationType="slide"
+        transparent
+        visible={Boolean(selectedExercise)}
+        onRequestClose={() => setSelectedExercise(null)}
+      >
+        <View style={styles.modalBackdrop}>
+          <Card style={styles.modalCard}>
+            <AppText variant="h3">{selectedExercise?.name ?? 'Exercise Detail'}</AppText>
+            <AppText variant="body" style={styles.mutedText}>
+              Detailed coaching and progression options are coming soon.
+            </AppText>
+            <AppText variant="caption" style={styles.mutedText}>
+              {selectedExercise ? `${selectedExercise.defaultDurationSec}s • ${selectedExercise.difficulty}` : ''}
+            </AppText>
+            <View style={styles.modalActions}>
+              <Button label="Close" variant="ghost" onPress={() => setSelectedExercise(null)} style={styles.modalAction} />
+              <Button
+                label="Add to Workout"
+                variant="primary"
+                onPress={() => {
+                  setSelectedExercise(null);
+                  Alert.alert('Coming soon', 'Adding from the detail modal will be available soon.');
+                }}
+                style={styles.modalAction}
+              />
+            </View>
+          </Card>
+        </View>
+      </Modal>
     </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  washWrap: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 260,
-    opacity: 0.08,
-  },
-  wash: {
-    flex: 1,
-  },
   content: {
     paddingTop: uiTheme.spacing.sm,
     paddingBottom: 118,
@@ -156,6 +182,10 @@ const styles = StyleSheet.create({
   header: {
     gap: uiTheme.spacing.md,
     marginBottom: uiTheme.spacing.sm,
+  },
+  headerAccent: {
+    height: 3,
+    borderRadius: uiTheme.radius.pill,
   },
   searchWrap: {
     borderRadius: uiTheme.radius.lg,
@@ -185,6 +215,9 @@ const styles = StyleSheet.create({
     gap: uiTheme.spacing.sm,
   },
   exerciseCard: {
+    gap: uiTheme.spacing.sm,
+  },
+  exerciseCardPressable: {
     flex: 1,
     marginBottom: uiTheme.spacing.sm,
     gap: uiTheme.spacing.sm,
@@ -230,5 +263,22 @@ const styles = StyleSheet.create({
   },
   mutedText: {
     color: uiTheme.colors.muted,
+  },
+  modalBackdrop: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    paddingHorizontal: uiTheme.spacing.lg,
+    paddingBottom: uiTheme.spacing.xl,
+    backgroundColor: 'rgba(11,15,24,0.2)',
+  },
+  modalCard: {
+    gap: uiTheme.spacing.md,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: uiTheme.spacing.sm,
+  },
+  modalAction: {
+    flex: 1,
   },
 });

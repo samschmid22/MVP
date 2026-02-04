@@ -3,7 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useMemo, useState } from 'react';
-import { FlatList, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Alert, FlatList, Modal, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { GoalFocus, goalById } from '../data/goals';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../storage/appStore';
@@ -29,6 +29,7 @@ export const HomeScreen = () => {
   const exercises = useAppStore((state) => state.exercises);
   const lastWorkoutId = useAppStore((state) => state.lastWorkoutId);
   const selectedGoal = useAppStore((state) => state.user.selectedGoal);
+  const [premiumModalVisible, setPremiumModalVisible] = useState(false);
 
   const initialFocus: GoalFocus = selectedGoal ? goalById[selectedGoal]?.focus ?? 'All' : 'All';
   const [focus, setFocus] = useState<GoalFocus>(initialFocus);
@@ -94,32 +95,34 @@ export const HomeScreen = () => {
   const lastWorkout = workouts.find((workout) => workout.id === lastWorkoutId) ?? null;
   const startWorkoutId = lastWorkout?.id ?? workouts[0]?.id ?? null;
 
+  const handleStartWorkout = () => {
+    if (startWorkoutId) {
+      navigation.navigate('Player', { workoutId: startWorkoutId });
+      return;
+    }
+    Alert.alert('Coming soon', 'Create a routine first, then you can start it here.');
+  };
+
   const renderHeader = (
     <View style={styles.headerContent}>
-      <LinearGradient colors={uiTheme.gradients.brandSoft} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
-        <View style={styles.heroText}>
-          <AppText variant="h1">Ready to move?</AppText>
-          <AppText variant="body" style={styles.mutedText}>
-            Pick a flow, reset posture, and feel better today.
-          </AppText>
+      <Card accent style={styles.hero}>
+        <View style={styles.heroTop}>
+          <View style={styles.heroText}>
+            <AppText variant="h1">Ready to move?</AppText>
+            <AppText variant="body" style={styles.mutedText}>
+              Pick a flow, reset posture, and feel better today.
+            </AppText>
+          </View>
+          <LinearGradient colors={uiTheme.gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.heroBadge}>
+            <Ionicons name="sparkles-outline" size={18} color={uiTheme.colors.white} />
+          </LinearGradient>
         </View>
-        <View style={styles.heroActions}>
-          <Button
-            label="Start a workout"
-            variant="primary"
-            onPress={() => {
-              if (startWorkoutId) navigation.navigate('Player', { workoutId: startWorkoutId });
-            }}
-            style={styles.flexButton}
-          />
-          <Button
-            label="Build one"
-            variant="secondary"
-            onPress={() => navigation.navigate('WorkoutBuilder')}
-            style={styles.flexButton}
-          />
-        </View>
-      </LinearGradient>
+        <Button
+          label="Start a workout"
+          variant="primary"
+          onPress={handleStartWorkout}
+        />
+      </Card>
 
       {lastWorkout ? (
         <Card accent>
@@ -148,19 +151,8 @@ export const HomeScreen = () => {
           <View style={styles.nowContent}>
             <AppText variant="h3">No active workout</AppText>
             <AppText variant="caption" style={styles.mutedText}>
-              Start a quick flow or build one in a few taps.
+              Start a workout from the hero or build a routine from Quick Start.
             </AppText>
-            <View style={styles.nowActions}>
-              <Button
-                label="Start"
-                variant="primary"
-                onPress={() => {
-                  if (startWorkoutId) navigation.navigate('Player', { workoutId: startWorkoutId });
-                }}
-                style={styles.flexButton}
-              />
-              <Button label="Build" variant="secondary" onPress={() => navigation.navigate('WorkoutBuilder')} style={styles.flexButton} />
-            </View>
           </View>
         </Card>
       )}
@@ -178,21 +170,48 @@ export const HomeScreen = () => {
         ))}
       </ScrollView>
 
-      <Pressable onPress={() => navigation.navigate('Premium')}>
-        <LinearGradient colors={uiTheme.gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.premiumCard}>
-          <View style={styles.premiumIcon}>
+      <Pressable onPress={() => setPremiumModalVisible(true)}>
+        <Card accent style={styles.premiumCard}>
+          <LinearGradient colors={uiTheme.gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.premiumIcon}>
             <Ionicons name="sparkles-outline" size={18} color={uiTheme.colors.white} />
-          </View>
+          </LinearGradient>
           <View style={styles.flexBlock}>
             <AppText variant="body" style={styles.premiumTitle}>
               Type any exercise → instant cartoon
             </AppText>
-            <AppText variant="caption" style={styles.premiumSubtitle}>
+            <AppText variant="caption" style={styles.mutedText}>
               Unlock custom generation with Premium.
             </AppText>
           </View>
-        </LinearGradient>
+        </Card>
       </Pressable>
+      <Modal
+        animationType="fade"
+        transparent
+        visible={premiumModalVisible}
+        onRequestClose={() => setPremiumModalVisible(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <Card style={styles.modalCard}>
+            <AppText variant="h3">Premium (Coming Soon)</AppText>
+            <AppText variant="body" style={styles.mutedText}>
+              Premium will unlock typing any exercise name and getting an instant cartoon-style guided animation.
+            </AppText>
+            <View style={styles.modalActions}>
+              <Button label="Not now" variant="ghost" onPress={() => setPremiumModalVisible(false)} style={styles.modalAction} />
+              <Button
+                label="Open Premium"
+                variant="primary"
+                onPress={() => {
+                  setPremiumModalVisible(false);
+                  navigation.navigate('Premium');
+                }}
+                style={styles.modalAction}
+              />
+            </View>
+          </Card>
+        </View>
+      </Modal>
     </View>
   );
 
@@ -213,7 +232,6 @@ export const HomeScreen = () => {
             <AppText variant="caption" style={styles.mutedText}>
               Try another chip or build your own workout.
             </AppText>
-            <Button label="Build workout" variant="primary" onPress={() => navigation.navigate('WorkoutBuilder')} />
           </Card>
         }
         renderItem={({ item }) => {
@@ -267,19 +285,23 @@ const styles = StyleSheet.create({
     gap: uiTheme.spacing.md,
   },
   hero: {
-    borderRadius: uiTheme.radius.xl,
-    borderWidth: 1,
-    borderColor: uiTheme.colors.stroke,
-    padding: uiTheme.spacing.lg,
     gap: uiTheme.spacing.md,
-    ...uiTheme.shadows.soft,
+  },
+  heroTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: uiTheme.spacing.md,
   },
   heroText: {
+    flex: 1,
     gap: uiTheme.spacing.xs,
   },
-  heroActions: {
-    flexDirection: 'row',
-    gap: uiTheme.spacing.sm,
+  heroBadge: {
+    width: 34,
+    height: 34,
+    borderRadius: uiTheme.radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   continueRow: {
     flexDirection: 'row',
@@ -287,10 +309,6 @@ const styles = StyleSheet.create({
     gap: uiTheme.spacing.sm,
   },
   nowContent: {
-    gap: uiTheme.spacing.sm,
-  },
-  nowActions: {
-    flexDirection: 'row',
     gap: uiTheme.spacing.sm,
   },
   iconTile: {
@@ -304,9 +322,6 @@ const styles = StyleSheet.create({
   flexBlock: {
     flex: 1,
     gap: uiTheme.spacing.xs,
-  },
-  flexButton: {
-    flex: 1,
   },
   upperMuted: {
     color: uiTheme.colors.muted,
@@ -337,11 +352,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   premiumTitle: {
-    color: uiTheme.colors.white,
+    color: uiTheme.colors.text,
     fontWeight: '600',
-  },
-  premiumSubtitle: {
-    color: uiTheme.colors.whiteSoft,
   },
   columnRow: {
     gap: uiTheme.spacing.sm,
@@ -374,5 +386,21 @@ const styles = StyleSheet.create({
   metaText: {
     color: uiTheme.colors.brandPurple,
     fontWeight: '600',
+  },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(11,15,24,0.2)',
+    justifyContent: 'center',
+    paddingHorizontal: uiTheme.spacing.lg,
+  },
+  modalCard: {
+    gap: uiTheme.spacing.md,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: uiTheme.spacing.sm,
+  },
+  modalAction: {
+    flex: 1,
   },
 });

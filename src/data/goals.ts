@@ -70,8 +70,8 @@ export const goalOptions: GoalOption[] = [
   },
   {
     id: 'goal_recovery',
-    title: 'Recovery + Relax (low intensity)',
-    description: 'Light movement for nervous-system reset.',
+    title: 'Recovery + Relax',
+    description: 'Low-intensity flow for nervous-system reset.',
     icon: 'leaf-outline',
     focus: 'Balance',
     preference: 'Balance',

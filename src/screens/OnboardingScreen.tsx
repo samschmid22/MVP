@@ -16,7 +16,7 @@ export const OnboardingScreen = ({ navigation }: Props) => {
   const selectedGoalFromState = useAppStore((state) => state.user.selectedGoal);
   const { width } = useWindowDimensions();
 
-  const columns = width >= 1024 ? 3 : width >= 720 ? 2 : 1;
+  const columns = width >= 1024 ? 3 : 2;
   const gap = uiTheme.spacing.sm;
   const cardWidth = useMemo(
     () => (width - uiTheme.spacing.lg * 2 - gap * (columns - 1)) / columns,
@@ -51,44 +51,59 @@ export const OnboardingScreen = ({ navigation }: Props) => {
             const selected = selectedGoal === goal.id;
             const accent = brandByCategory[goal.focus];
             const tint = `${accent}14`;
-
-            const goalCard = (
-              <Pressable
-                key={selected ? `${goal.id}_selected` : goal.id}
-                onPress={() => setSelectedGoal(goal.id)}
-                style={[
-                  styles.goalCard,
-                  {
-                    width: cardWidth,
-                    backgroundColor: tint,
-                    borderColor: `${accent}5C`,
-                  },
-                ]}
-              >
-                <View style={[styles.goalIconWrap, { backgroundColor: `${accent}24` }]}>
-                  <Ionicons name={goal.icon as keyof typeof Ionicons.glyphMap} size={20} color={accent} />
-                </View>
-                <AppText variant="h3" style={[styles.goalTitle, { color: selected ? accent : uiTheme.colors.text }]}>
-                  {goal.title}
-                </AppText>
-                <AppText variant="caption" style={styles.subtext}>
-                  {goal.description}
-                </AppText>
-              </Pressable>
-            );
-
-            if (!selected) return goalCard;
-
             return (
-              <LinearGradient
-                key={goal.id}
-                colors={uiTheme.gradients.brand}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={[styles.goalBorder, { width: cardWidth }]}
-              >
-                {goalCard}
-              </LinearGradient>
+              <View key={goal.id} style={{ width: cardWidth }}>
+                {selected ? (
+                  <LinearGradient
+                    colors={uiTheme.gradients.brand}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.goalBorder}
+                  >
+                    <Pressable
+                      onPress={() => setSelectedGoal(goal.id)}
+                      style={[
+                        styles.goalCard,
+                        {
+                          backgroundColor: tint,
+                          borderColor: 'transparent',
+                        },
+                      ]}
+                    >
+                      <View style={[styles.goalIconWrap, { backgroundColor: `${accent}24` }]}>
+                        <Ionicons name={goal.icon as keyof typeof Ionicons.glyphMap} size={20} color={accent} />
+                      </View>
+                      <AppText variant="h3" style={[styles.goalTitle, { color: accent }]}>
+                        {goal.title}
+                      </AppText>
+                      <AppText variant="caption" style={styles.subtext}>
+                        {goal.description}
+                      </AppText>
+                    </Pressable>
+                  </LinearGradient>
+                ) : (
+                  <Pressable
+                    onPress={() => setSelectedGoal(goal.id)}
+                    style={[
+                      styles.goalCard,
+                      {
+                        backgroundColor: tint,
+                        borderColor: `${accent}5C`,
+                      },
+                    ]}
+                  >
+                    <View style={[styles.goalIconWrap, { backgroundColor: `${accent}24` }]}>
+                      <Ionicons name={goal.icon as keyof typeof Ionicons.glyphMap} size={20} color={accent} />
+                    </View>
+                    <AppText variant="h3" style={styles.goalTitle}>
+                      {goal.title}
+                    </AppText>
+                    <AppText variant="caption" style={styles.subtext}>
+                      {goal.description}
+                    </AppText>
+                  </Pressable>
+                )}
+              </View>
             );
           })}
         </View>
@@ -135,6 +150,7 @@ const styles = StyleSheet.create({
   goalBorder: {
     borderRadius: uiTheme.radius.lg,
     padding: 1.5,
+    ...uiTheme.shadows.card,
   },
   goalCard: {
     borderRadius: uiTheme.radius.lg,
