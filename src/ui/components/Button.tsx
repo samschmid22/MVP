@@ -31,7 +31,7 @@ export const Button = ({
     {variant === 'primary' ? (
       <LinearGradient colors={uiTheme.gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.primary}>
         {icon ? <View style={styles.icon}>{icon}</View> : null}
-        <AppText variant="body" style={styles.primaryText}>
+        <AppText variant="button" style={styles.primaryText}>
           {label}
         </AppText>
       </LinearGradient>
@@ -40,7 +40,7 @@ export const Button = ({
       <LinearGradient colors={uiTheme.gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.secondaryBorder}>
         <View style={styles.secondaryInner}>
           {icon ? <View style={styles.icon}>{icon}</View> : null}
-          <AppText variant="body" style={styles.secondaryText}>
+          <AppText variant="button" style={styles.secondaryText}>
             {label}
           </AppText>
         </View>
@@ -49,7 +49,7 @@ export const Button = ({
     {variant === 'ghost' ? (
       <View style={styles.ghost}>
         {icon ? <View style={styles.icon}>{icon}</View> : null}
-        <AppText variant="body" style={styles.ghostText}>
+        <AppText variant="button" style={styles.ghostText}>
           {label}
         </AppText>
       </View>
@@ -58,7 +58,7 @@ export const Button = ({
 );
 
 const shared = {
-  minHeight: 44,
+  minHeight: 46,
   borderRadius: uiTheme.radius.pill,
   alignItems: 'center' as const,
   justifyContent: 'center' as const,
@@ -74,7 +74,6 @@ const styles = StyleSheet.create({
   },
   primaryText: {
     color: uiTheme.colors.white,
-    fontWeight: '600',
   },
   secondaryBorder: {
     ...shared,
@@ -82,7 +81,7 @@ const styles = StyleSheet.create({
   },
   secondaryInner: {
     flex: 1,
-    minHeight: 41,
+    minHeight: 43,
     borderRadius: uiTheme.radius.pill,
     backgroundColor: uiTheme.colors.surface,
     alignItems: 'center',
@@ -93,7 +92,6 @@ const styles = StyleSheet.create({
   },
   secondaryText: {
     color: uiTheme.colors.brandPurple,
-    fontWeight: '600',
   },
   ghost: {
     ...shared,
@@ -103,7 +101,6 @@ const styles = StyleSheet.create({
   },
   ghostText: {
     color: uiTheme.colors.muted,
-    fontWeight: '500',
   },
   icon: {
     alignItems: 'center',

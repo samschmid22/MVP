@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors } from '../utils/theme';
+import { theme } from '../theme';
+import { titleCaseLabel } from '../ui/utils/text';
 
 type Props<T extends string> = {
   items: T[];
@@ -17,7 +18,7 @@ export const FilterChips = <T extends string>({ items, value, onChange }: Props<
           onPress={() => onChange(item)}
           style={[styles.chip, active && styles.chipActive]}
         >
-          <Text style={[styles.label, active && styles.labelActive]}>{item}</Text>
+          <Text style={[styles.label, active && styles.labelActive]}>{titleCaseLabel(item)}</Text>
         </Pressable>
       );
     })}
@@ -32,22 +33,22 @@ const styles = StyleSheet.create({
   },
   chip: {
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: theme.colors.border,
     backgroundColor: '#fff',
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 999,
   },
   chipActive: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primarySoft,
+    borderColor: theme.colors.primary,
+    backgroundColor: theme.colors.surface2,
   },
   label: {
-    color: colors.subtext,
+    color: theme.colors.subtext,
     fontWeight: '600',
     fontSize: 12,
   },
   labelActive: {
-    color: colors.primary,
+    color: theme.colors.primary,
   },
 });

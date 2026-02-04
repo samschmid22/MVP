@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { theme } from '../theme';
+import { titleCaseLabel } from '../ui/utils/text';
 
 type PillChipProps = {
   label: string;
@@ -19,7 +20,7 @@ export const PillChip = ({ label, active = false, accent = theme.colors.primary,
       },
     ]}
   >
-    <Text style={[styles.text, active && { color: accent }]}>{label}</Text>
+    <Text style={[styles.text, active && { color: accent }]}>{titleCaseLabel(label)}</Text>
   </Pressable>
 );
 

@@ -1,6 +1,7 @@
 import { Pressable, StyleProp, StyleSheet, ViewStyle } from 'react-native';
 import { AppText } from './AppText';
 import { uiTheme } from '../theme';
+import { titleCaseLabel } from '../utils/text';
 
 type ChipProps = {
   label: string;
@@ -12,7 +13,7 @@ type ChipProps = {
 export const Chip = ({ label, selected = false, onPress, style }: ChipProps) => (
   <Pressable onPress={onPress} style={[styles.chip, selected && styles.selectedChip, style]}>
     <AppText variant="caption" style={[styles.label, selected && styles.selectedLabel]}>
-      {label}
+      {titleCaseLabel(label)}
     </AppText>
   </Pressable>
 );
@@ -32,6 +33,7 @@ const styles = StyleSheet.create({
   },
   label: {
     color: uiTheme.colors.muted,
+    textDecorationLine: 'none',
   },
   selectedLabel: {
     color: uiTheme.colors.brandPurple,

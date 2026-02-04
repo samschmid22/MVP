@@ -3,6 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Exercise } from '../types/models';
 import { getPastelByCategory, theme } from '../theme';
+import { titleCaseLabel } from '../ui/utils/text';
 
 type Props = {
   exercise: Exercise;
@@ -55,7 +56,7 @@ export const ExerciseCard = ({ exercise, isFavorite, onPress, onToggleFavorite }
     <View style={styles.tagRow}>
       {exercise.tags.slice(0, 2).map((tag) => (
         <View key={tag} style={styles.tagChip}>
-          <Text style={styles.tagText}>{tag}</Text>
+          <Text style={styles.tagText}>{titleCaseLabel(tag)}</Text>
         </View>
       ))}
     </View>
