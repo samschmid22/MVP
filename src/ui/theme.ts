@@ -1,0 +1,75 @@
+export const uiTheme = {
+  colors: {
+    brandBlue: '#4F8BFF',
+    brandPurple: '#7C5CFF',
+    brandPink: '#FF5DA8',
+    bg: '#F5F7FF',
+    surface: '#FFFFFF',
+    surface2: '#EEF2FF',
+    text: '#131A2E',
+    muted: '#6B7290',
+    stroke: '#DEE4F7',
+    white: '#FFFFFF',
+    whiteSoft: '#F2EEFF',
+    whiteOverlay: 'rgba(255,255,255,0.2)',
+    tabBarGlass: 'rgba(255,255,255,0.9)',
+  },
+  gradients: {
+    brand: ['#4F8BFF', '#7C5CFF', '#FF5DA8'] as const,
+    brandSoft: ['rgba(79,139,255,0.14)', 'rgba(124,92,255,0.14)', 'rgba(255,93,168,0.14)'] as const,
+    wash: ['rgba(79,139,255,0.08)', 'rgba(124,92,255,0.08)', 'rgba(255,93,168,0.08)'] as const,
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 20,
+    xxl: 24,
+  },
+  radius: {
+    md: 12,
+    lg: 16,
+    xl: 20,
+    pill: 999,
+  },
+  typography: {
+    h1: { fontSize: 28, lineHeight: 34, fontWeight: '700' as const },
+    h2: { fontSize: 22, lineHeight: 28, fontWeight: '600' as const },
+    h3: { fontSize: 18, lineHeight: 24, fontWeight: '600' as const },
+    body: { fontSize: 15, lineHeight: 21, fontWeight: '400' as const },
+    caption: { fontSize: 12, lineHeight: 17, fontWeight: '500' as const },
+  },
+  shadows: {
+    card: {
+      shadowColor: '#131A2E',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.07,
+      shadowRadius: 14,
+      elevation: 4,
+    },
+    soft: {
+      shadowColor: '#131A2E',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.05,
+      shadowRadius: 10,
+      elevation: 2,
+    },
+    tab: {
+      shadowColor: '#131A2E',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.13,
+      shadowRadius: 20,
+      elevation: 14,
+    },
+  },
+};
+
+export const brandByCategory = {
+  Mobility: uiTheme.colors.brandBlue,
+  Posture: uiTheme.colors.brandPink,
+  Stability: uiTheme.colors.brandPurple,
+  Balance: uiTheme.colors.brandBlue,
+  Warmup: uiTheme.colors.brandPurple,
+  Cooldown: uiTheme.colors.brandPink,
+} as const;

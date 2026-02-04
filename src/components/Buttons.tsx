@@ -13,7 +13,11 @@ type ButtonProps = {
 };
 
 export const PrimaryButton = ({ label, onPress, disabled, icon, style, textStyle }: ButtonProps) => (
-  <Pressable disabled={disabled} onPress={onPress} style={[style, disabled && styles.disabled]}>
+  <Pressable
+    disabled={disabled}
+    onPress={onPress}
+    style={({ pressed }) => [styles.secondary, style, pressed && styles.pressed, disabled && styles.disabled]}
+  >
     <LinearGradient
       colors={theme.gradients.brand}
       start={{ x: 0, y: 0 }}
@@ -30,10 +34,19 @@ export const SecondaryButton = ({ label, onPress, disabled, icon, style, textSty
   <Pressable
     disabled={disabled}
     onPress={onPress}
-    style={[styles.secondary, style, disabled && styles.disabled]}
+    style={({ pressed }) => [style, pressed && styles.pressed, disabled && styles.disabled]}
   >
-    {icon ? <View style={styles.iconWrap}>{icon}</View> : null}
-    <Text style={[styles.secondaryText, textStyle]}>{label}</Text>
+    <LinearGradient
+      colors={theme.gradients.brand}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.secondaryBorder}
+    >
+      <View style={styles.secondaryInner}>
+        {icon ? <View style={styles.iconWrap}>{icon}</View> : null}
+        <Text style={[styles.secondaryText, textStyle]}>{label}</Text>
+      </View>
+    </LinearGradient>
   </Pressable>
 );
 
@@ -50,13 +63,19 @@ const styles = StyleSheet.create({
     ...theme.shadows.soft,
   },
   secondary: {
-    minHeight: 44,
+    minHeight: 46,
+  },
+  secondaryBorder: {
+    minHeight: 46,
     borderRadius: theme.radii.pill,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: '#FFFFFFE8',
+    padding: 1.5,
+  },
+  secondaryInner: {
+    flex: 1,
+    borderRadius: theme.radii.pill,
+    backgroundColor: theme.colors.surface,
+    minHeight: 43,
     paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm + 1,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
@@ -76,5 +95,9 @@ const styles = StyleSheet.create({
   },
   disabled: {
     opacity: 0.5,
+  },
+  pressed: {
+    opacity: 0.9,
+    transform: [{ scale: 0.985 }],
   },
 });

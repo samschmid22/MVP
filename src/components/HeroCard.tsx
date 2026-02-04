@@ -22,7 +22,7 @@ export const HeroCard = ({
   onSecondaryPress,
 }: HeroCardProps) => (
   <LinearGradient
-    colors={theme.gradients.brand}
+    colors={theme.gradients.hero}
     start={{ x: 0, y: 0 }}
     end={{ x: 1, y: 1 }}
     style={styles.card}
@@ -72,11 +72,11 @@ const styles = StyleSheet.create({
     gap: theme.spacing.xs,
   },
   title: {
-    color: '#fff',
-    ...theme.typography.display,
+    color: theme.colors.text,
+    ...theme.typography.h1,
   },
   subtitle: {
-    color: '#F8FAFC',
+    color: theme.colors.muted,
     ...theme.typography.body,
     maxWidth: 220,
   },
@@ -88,16 +88,9 @@ const styles = StyleSheet.create({
   primaryBtn: {
     alignSelf: 'flex-start',
   },
-  primaryText: {
-    color: '#FFFFFF',
-  },
   secondaryBtn: {
     alignSelf: 'flex-start',
-    borderColor: 'rgba(255,255,255,0.45)',
-    backgroundColor: 'rgba(255,255,255,0.2)',
-  },
-  secondaryText: {
-    color: '#fff',
+    backgroundColor: '#FFFFFFD4',
   },
   illustrationWrap: {
     width: 88,
@@ -109,18 +102,26 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     right: 8,
+    opacity: 0.8,
   },
   sparkleTwo: {
     position: 'absolute',
     top: 22,
     left: 8,
+    opacity: 0.7,
   },
   iconBubble: {
     width: 70,
     height: 70,
     borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.8)',
+    backgroundColor: '#FFFFFFD8',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  primaryText: {
+    color: '#FFFFFF',
+  },
+  secondaryText: {
+    color: theme.colors.text,
   },
 });

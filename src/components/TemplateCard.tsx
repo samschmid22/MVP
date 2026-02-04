@@ -12,6 +12,7 @@ type TemplateCardProps = {
   accent: string;
   onStart: () => void;
   onEdit: () => void;
+  onPress?: () => void;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -23,11 +24,12 @@ export const TemplateCard = ({
   accent,
   onStart,
   onEdit,
+  onPress,
   style,
 }: TemplateCardProps) => (
-  <View style={[styles.card, { borderColor: `${accent}3D` }, style]}>
+  <Pressable style={[styles.card, { borderColor: `${accent}3D` }, style]} onPress={onPress}>
     <LinearGradient
-      colors={[`${accent}C2`, `${accent}7A`]}
+      colors={theme.gradients.brandSoft}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.banner}
@@ -36,7 +38,7 @@ export const TemplateCard = ({
         <Ionicons name="body-outline" size={18} color="#FFFFFF" />
       </View>
       <Pressable onPress={onEdit} style={styles.editIconWrap}>
-        <Ionicons name="pencil" size={14} color="#fff" />
+        <Ionicons name="pencil" size={14} color={theme.colors.brandPurple} />
       </Pressable>
     </LinearGradient>
 
@@ -53,7 +55,7 @@ export const TemplateCard = ({
 
       <PrimaryButton label="Start" onPress={onStart} style={styles.startButton} />
     </View>
-  </View>
+  </Pressable>
 );
 
 const styles = StyleSheet.create({
@@ -66,7 +68,7 @@ const styles = StyleSheet.create({
     ...theme.shadows.soft,
   },
   banner: {
-    height: 78,
+    height: 68,
     paddingHorizontal: theme.spacing.sm,
     flexDirection: 'row',
     alignItems: 'center',
@@ -76,7 +78,7 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.28)',
+    backgroundColor: '#FFFFFFCC',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -84,7 +86,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.26)',
+    backgroundColor: '#FFFFFFCC',
     alignItems: 'center',
     justifyContent: 'center',
   },

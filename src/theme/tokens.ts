@@ -1,23 +1,25 @@
+import { typography } from './typography';
+
 export const theme = {
   colors: {
-    background: '#F7F9FE',
+    bg: '#F6F7FD',
     surface: '#FFFFFF',
-    text: '#10243E',
-    muted: '#64748B',
-    border: '#DEE6F3',
-    primary: '#3B82F6',
-    accentPink: '#EC6FAF',
-    accentYellow: '#F6C150',
-    success: '#27B39A',
-    pastelBlue: '#EAF2FF',
-    pastelPink: '#FDEEF7',
-    pastelYellow: '#FFF7E8',
-    pastelTeal: '#EAF9F6',
-    tabBar: 'rgba(247,250,255,0.95)',
+    surface2: '#F1F3FE',
+    text: '#131A2E',
+    muted: '#6B7290',
+    stroke: '#DFE3F6',
+    brandBlue: '#4F8BFF',
+    brandPurple: '#7C5CFF',
+    brandPink: '#FF5DA8',
+    tabBarGlass: 'rgba(255,255,255,0.88)',
+    tintBlue: '#EAF1FF',
+    tintPurple: '#F1ECFF',
+    tintPink: '#FEEAF4',
   },
   gradients: {
-    brand: ['#5E93F7', '#EB82B7'] as const,
-    wash: ['rgba(236,111,175,0.14)', 'rgba(59,130,246,0.14)', 'rgba(246,193,80,0.1)'] as const,
+    brand: ['#4F8BFF', '#7C5CFF', '#FF5DA8'] as const,
+    brandSoft: ['rgba(79,139,255,0.12)', 'rgba(124,92,255,0.12)', 'rgba(255,93,168,0.12)'] as const,
+    wash: ['rgba(79,139,255,0.08)', 'rgba(124,92,255,0.08)', 'rgba(255,93,168,0.08)'] as const,
   },
   spacing: {
     xxs: 2,
@@ -39,59 +41,50 @@ export const theme = {
   },
   shadows: {
     card: {
-      shadowColor: '#10243E',
+      shadowColor: '#131A2E',
       shadowOffset: { width: 0, height: 8 },
       shadowOpacity: 0.08,
       shadowRadius: 16,
       elevation: 4,
     },
     soft: {
-      shadowColor: '#10243E',
-      shadowOffset: { width: 0, height: 3 },
+      shadowColor: '#131A2E',
+      shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.05,
       shadowRadius: 10,
       elevation: 2,
     },
     tabBar: {
-      shadowColor: '#10243E',
-      shadowOffset: { width: 0, height: -2 },
-      shadowOpacity: 0.08,
-      shadowRadius: 12,
-      elevation: 16,
+      shadowColor: '#131A2E',
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.12,
+      shadowRadius: 18,
+      elevation: 14,
     },
   },
-  typography: {
-    display: { fontSize: 30, lineHeight: 36, fontWeight: '700' as const },
-    h1: { fontSize: 24, lineHeight: 30, fontWeight: '600' as const },
-    h2: { fontSize: 20, lineHeight: 26, fontWeight: '600' as const },
-    body: { fontSize: 16, lineHeight: 22, fontWeight: '400' as const },
-    small: { fontSize: 13, lineHeight: 18, fontWeight: '500' as const },
-    micro: { fontSize: 12, lineHeight: 16, fontWeight: '600' as const },
-    button: { fontSize: 15, lineHeight: 20, fontWeight: '600' as const },
-  },
+  typography,
   category: {
-    Mobility: '#3B82F6',
-    Posture: '#EC6FAF',
-    Stability: '#F6C150',
-    Balance: '#27B39A',
-    Warmup: '#3B82F6',
-    Cooldown: '#EC6FAF',
+    Mobility: '#4F8BFF',
+    Posture: '#FF5DA8',
+    Stability: '#7C5CFF',
+    Balance: '#4F8BFF',
+    Warmup: '#7C5CFF',
+    Cooldown: '#FF5DA8',
   },
 };
 
 export const getPastelByCategory = (category: keyof typeof theme.category) => {
   switch (category) {
     case 'Mobility':
+    case 'Balance':
+      return theme.colors.tintBlue;
+    case 'Stability':
     case 'Warmup':
-      return theme.colors.pastelBlue;
+      return theme.colors.tintPurple;
     case 'Posture':
     case 'Cooldown':
-      return theme.colors.pastelPink;
-    case 'Stability':
-      return theme.colors.pastelYellow;
-    case 'Balance':
-      return theme.colors.pastelTeal;
+      return theme.colors.tintPink;
     default:
-      return theme.colors.pastelBlue;
+      return theme.colors.tintBlue;
   }
 };

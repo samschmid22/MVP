@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import { theme } from '../theme';
 
@@ -6,12 +7,26 @@ type CardProps = {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
   accentColor?: string;
+  accentGradient?: readonly [string, string, string];
   accentPosition?: 'left' | 'top';
 };
 
-export const Card = ({ children, style, accentColor, accentPosition = 'top' }: CardProps) => (
+export const Card = ({
+  children,
+  style,
+  accentColor,
+  accentGradient,
+  accentPosition = 'top',
+}: CardProps) => (
   <View style={[styles.card, style]}>
-    {accentColor ? (
+    {accentGradient ? (
+      <LinearGradient
+        colors={accentGradient}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.accent, accentPosition === 'left' ? styles.accentLeft : styles.accentTop]}
+      />
+    ) : accentColor ? (
       <View
         style={[
           styles.accent,

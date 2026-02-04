@@ -1,10 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
-import { Card } from '../components/Card';
-import { PrimaryButton } from '../components/Buttons';
-import { Screen } from '../components/Screen';
+import { Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { useAppStore } from '../storage/appStore';
-import { theme } from '../theme';
+import { AppText, Button, Card, Screen, SectionHeader } from '../ui/components';
+import { uiTheme } from '../ui/theme';
 
 export const SettingsScreen = () => {
   const settings = useAppStore((state) => state.settings);
@@ -15,33 +13,22 @@ export const SettingsScreen = () => {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <Text style={styles.heading}>Settings</Text>
-          <Text style={styles.subheading}>Tune cues, units, and premium debug options.</Text>
-        </View>
+        <SectionHeader title="Settings" subtitle="Tune cues, units, and premium testing options." />
 
-        <Card accentColor={theme.category.Mobility}>
-          <View style={styles.cardHeader}>
-            <Ionicons name="shield-checkmark-outline" size={18} color={theme.category.Mobility} />
-            <Text style={styles.cardTitle}>Safety</Text>
-          </View>
-          <Text style={styles.cardText}>Not medical advice. Stop if pain. Consult a professional.</Text>
-        </Card>
-
-        <Card accentColor={theme.category.Posture}>
-          <View style={styles.cardHeader}>
-            <Ionicons name="volume-high-outline" size={18} color={theme.category.Posture} />
-            <Text style={styles.cardTitle}>Session cues</Text>
+        <Card accent>
+          <View style={styles.cardTitleRow}>
+            <Ionicons name="volume-high-outline" size={18} color={uiTheme.colors.brandPurple} />
+            <AppText variant="h3">Session cues</AppText>
           </View>
           <View style={styles.row}>
-            <Text style={styles.rowLabel}>Sound cues</Text>
+            <AppText variant="body">Sound cues</AppText>
             <Switch
               value={settings.soundEnabled}
               onValueChange={(value) => updateSettings({ soundEnabled: value })}
             />
           </View>
           <View style={styles.row}>
-            <Text style={styles.rowLabel}>Vibration cues</Text>
+            <AppText variant="body">Vibration cues</AppText>
             <Switch
               value={settings.vibrationEnabled}
               onValueChange={(value) => updateSettings({ vibrationEnabled: value })}
@@ -49,41 +36,42 @@ export const SettingsScreen = () => {
           </View>
         </Card>
 
-        <Card accentColor={theme.category.Stability}>
-          <View style={styles.cardHeader}>
-            <Ionicons name="resize-outline" size={18} color={theme.category.Stability} />
-            <Text style={styles.cardTitle}>Units</Text>
+        <Card accent>
+          <View style={styles.cardTitleRow}>
+            <Ionicons name="resize-outline" size={18} color={uiTheme.colors.brandPink} />
+            <AppText variant="h3">Units</AppText>
           </View>
-          <View style={styles.segmentedRow}>
+          <View style={styles.unitRow}>
             <Pressable
-              style={[styles.segmentBtn, settings.units === 'metric' && styles.segmentBtnActive]}
               onPress={() => updateSettings({ units: 'metric' })}
+              style={[styles.unitChip, settings.units === 'metric' && styles.unitChipActive]}
             >
-              <Text style={[styles.segmentBtnText, settings.units === 'metric' && styles.segmentBtnTextActive]}>
+              <AppText variant="caption" style={[styles.unitText, settings.units === 'metric' && styles.unitTextActive]}>
                 Metric
-              </Text>
+              </AppText>
             </Pressable>
             <Pressable
-              style={[styles.segmentBtn, settings.units === 'imperial' && styles.segmentBtnActive]}
               onPress={() => updateSettings({ units: 'imperial' })}
+              style={[styles.unitChip, settings.units === 'imperial' && styles.unitChipActive]}
             >
-              <Text
-                style={[styles.segmentBtnText, settings.units === 'imperial' && styles.segmentBtnTextActive]}
-              >
+              <AppText variant="caption" style={[styles.unitText, settings.units === 'imperial' && styles.unitTextActive]}>
                 Imperial
-              </Text>
+              </AppText>
             </Pressable>
           </View>
         </Card>
 
-        <Card accentColor={theme.category.Balance}>
-          <View style={styles.cardHeader}>
-            <Ionicons name="sparkles-outline" size={18} color={theme.category.Balance} />
-            <Text style={styles.cardTitle}>Premium debug</Text>
+        <Card accent>
+          <View style={styles.cardTitleRow}>
+            <Ionicons name="sparkles-outline" size={18} color={uiTheme.colors.brandBlue} />
+            <AppText variant="h3">Premium</AppText>
           </View>
-          <Text style={styles.cardText}>Use this for MVP testing without store keys.</Text>
-          <PrimaryButton
+          <AppText variant="caption" style={styles.mutedText}>
+            Toggle this in MVP mode when store keys are not configured.
+          </AppText>
+          <Button
             label={isPremium ? 'Disable Premium' : 'Enable Premium'}
+            variant="primary"
             onPress={() => setPremium(!isPremium)}
           />
         </Card>
@@ -94,73 +82,54 @@ export const SettingsScreen = () => {
 
 const styles = StyleSheet.create({
   content: {
-    paddingTop: theme.spacing.sm,
-    paddingBottom: 116,
-    gap: theme.spacing.md,
+    paddingTop: uiTheme.spacing.sm,
+    paddingBottom: 118,
+    gap: uiTheme.spacing.md,
   },
-  header: {
-    gap: theme.spacing.xs,
-  },
-  heading: {
-    ...theme.typography.h1,
-    color: theme.colors.text,
-  },
-  subheading: {
-    ...theme.typography.body,
-    color: theme.colors.muted,
-  },
-  cardHeader: {
+  cardTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.spacing.xs,
-  },
-  cardTitle: {
-    ...theme.typography.h2,
-    fontSize: 18,
-    color: theme.colors.text,
-  },
-  cardText: {
-    ...theme.typography.body,
-    color: theme.colors.muted,
+    gap: uiTheme.spacing.sm,
+    marginBottom: uiTheme.spacing.sm,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    borderRadius: theme.radii.md,
     borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
+    borderColor: uiTheme.colors.stroke,
+    borderRadius: uiTheme.radius.md,
+    backgroundColor: uiTheme.colors.surface,
+    paddingHorizontal: uiTheme.spacing.md,
+    paddingVertical: uiTheme.spacing.sm,
+    marginTop: uiTheme.spacing.xs,
   },
-  rowLabel: {
-    ...theme.typography.body,
-    color: theme.colors.text,
-    fontWeight: '500',
-  },
-  segmentedRow: {
+  unitRow: {
     flexDirection: 'row',
-    borderRadius: theme.radii.md,
+    borderRadius: uiTheme.radius.md,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: theme.colors.border,
+    borderColor: uiTheme.colors.stroke,
+    backgroundColor: uiTheme.colors.surface,
   },
-  segmentBtn: {
+  unitChip: {
     flex: 1,
-    paddingVertical: theme.spacing.sm,
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    paddingVertical: uiTheme.spacing.sm + 2,
   },
-  segmentBtnActive: {
-    backgroundColor: theme.colors.pastelBlue,
+  unitChipActive: {
+    backgroundColor: uiTheme.colors.surface2,
   },
-  segmentBtnText: {
-    ...theme.typography.small,
-    color: theme.colors.muted,
+  unitText: {
+    color: uiTheme.colors.muted,
   },
-  segmentBtnTextActive: {
-    color: theme.colors.primary,
+  unitTextActive: {
+    color: uiTheme.colors.brandPurple,
     fontWeight: '600',
+  },
+  mutedText: {
+    color: uiTheme.colors.muted,
+    marginBottom: uiTheme.spacing.sm,
   },
 });

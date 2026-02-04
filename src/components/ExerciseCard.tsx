@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   tagChip: {
-    backgroundColor: theme.colors.pastelBlue,
+    backgroundColor: theme.colors.tintBlue,
     borderRadius: theme.radii.pill,
     paddingHorizontal: 8,
     paddingVertical: 4,

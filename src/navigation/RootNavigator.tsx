@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HomeScreen } from '../screens/HomeScreen';
 import { LibraryScreen } from '../screens/LibraryScreen';
 import { OnboardingScreen } from '../screens/OnboardingScreen';
@@ -13,7 +14,7 @@ import { PremiumScreen } from '../screens/PremiumScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { WorkoutBuilderScreen } from '../screens/WorkoutBuilderScreen';
 import { useAppStore } from '../storage/appStore';
-import { theme } from '../theme';
+import { uiTheme } from '../ui/theme';
 import { MainTabParamList, RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -23,10 +24,15 @@ const TabBarButton = ({ accessibilityState, children, onPress, onLongPress }: Bo
   const selected = accessibilityState?.selected;
 
   return (
-    <Pressable onPress={onPress} onLongPress={onLongPress} style={styles.tabButtonWrap}>
+    <Pressable
+      onPress={onPress}
+      onLongPress={onLongPress}
+      style={styles.tabButtonWrap}
+      android_ripple={{ color: 'transparent' }}
+    >
       {selected ? (
         <LinearGradient
-          colors={theme.gradients.brand}
+          colors={uiTheme.gradients.brand}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.activePill}
@@ -40,77 +46,89 @@ const TabBarButton = ({ accessibilityState, children, onPress, onLongPress }: Bo
   );
 };
 
-const MainTabs = () => (
-  <Tabs.Navigator
-    screenOptions={{
-      headerShown: false,
-      tabBarActiveTintColor: '#FFFFFF',
-      tabBarInactiveTintColor: theme.colors.muted,
-      tabBarButton: (props) => <TabBarButton {...props} />,
-      tabBarLabelStyle: {
-        ...theme.typography.micro,
-        marginBottom: 1,
-        fontWeight: '600',
-      },
-      tabBarItemStyle: { marginHorizontal: 4, marginVertical: 6 },
-      tabBarStyle: {
-        position: 'absolute',
-        left: 12,
-        right: 12,
-        bottom: 10,
-        borderRadius: 22,
-        height: 74,
-        paddingBottom: 8,
-        paddingTop: 6,
-        backgroundColor: theme.colors.tabBar,
-        borderTopWidth: 1,
-        borderTopColor: theme.colors.border,
-        ...theme.shadows.tabBar,
-      },
-    }}
-  >
-    <Tabs.Screen
-      name="Home"
-      component={HomeScreen}
-      options={{
-        tabBarLabel: 'Home',
-        tabBarIcon: ({ color, focused }) => (
-          <View style={{ transform: [{ scale: focused ? 1.05 : 1 }] }}>
-            <Ionicons name={focused ? 'home' : 'home-outline'} size={25} color={focused ? '#fff' : color} />
-          </View>
-        ),
+const MainTabs = () => {
+  const insets = useSafeAreaInsets();
+
+  return (
+    <Tabs.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: uiTheme.colors.white,
+        tabBarInactiveTintColor: uiTheme.colors.muted,
+        tabBarButton: (props) => <TabBarButton {...props} />,
+        tabBarLabelStyle: {
+          ...uiTheme.typography.caption,
+          marginTop: 2,
+          marginBottom: 0,
+        },
+        tabBarItemStyle: { marginHorizontal: 4, marginVertical: 4 },
+        tabBarStyle: {
+          position: 'absolute',
+          left: 16,
+          right: 16,
+          bottom: 16,
+          borderRadius: 999,
+          height: 64 + Math.max(0, insets.bottom - 6),
+          paddingBottom: Math.max(8, insets.bottom),
+          paddingTop: 8,
+          backgroundColor: uiTheme.colors.tabBarGlass,
+          borderTopWidth: 1,
+          borderTopColor: uiTheme.colors.stroke,
+          ...uiTheme.shadows.tab,
+        },
       }}
-    />
-    <Tabs.Screen
-      name="Library"
-      component={LibraryScreen}
-      options={{
-        tabBarLabel: 'Library',
-        tabBarIcon: ({ color, focused }) => (
-          <View style={{ transform: [{ scale: focused ? 1.05 : 1 }] }}>
-            <Ionicons name={focused ? 'grid' : 'grid-outline'} size={25} color={focused ? '#fff' : color} />
-          </View>
-        ),
-      }}
-    />
-    <Tabs.Screen
-      name="Settings"
-      component={SettingsScreen}
-      options={{
-        tabBarLabel: 'Settings',
-        tabBarIcon: ({ color, focused }) => (
-          <View style={{ transform: [{ scale: focused ? 1.05 : 1 }] }}>
-            <Ionicons
-              name={focused ? 'settings' : 'settings-outline'}
-              size={25}
-              color={focused ? '#fff' : color}
-            />
-          </View>
-        ),
-      }}
-    />
-  </Tabs.Navigator>
-);
+    >
+      <Tabs.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          tabBarLabel: 'Home',
+          tabBarIcon: ({ color, focused }) => (
+            <View style={{ transform: [{ scale: focused ? 1.04 : 1 }] }}>
+              <Ionicons
+                name={focused ? 'home' : 'home-outline'}
+                size={24}
+                color={focused ? uiTheme.colors.white : color}
+              />
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="Library"
+        component={LibraryScreen}
+        options={{
+          tabBarLabel: 'Library',
+          tabBarIcon: ({ color, focused }) => (
+            <View style={{ transform: [{ scale: focused ? 1.04 : 1 }] }}>
+              <Ionicons
+                name={focused ? 'grid' : 'grid-outline'}
+                size={24}
+                color={focused ? uiTheme.colors.white : color}
+              />
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          tabBarLabel: 'Settings',
+          tabBarIcon: ({ color, focused }) => (
+            <View style={{ transform: [{ scale: focused ? 1.04 : 1 }] }}>
+              <Ionicons
+                name={focused ? 'settings' : 'settings-outline'}
+                size={24}
+                color={focused ? uiTheme.colors.white : color}
+              />
+            </View>
+          ),
+        }}
+      />
+    </Tabs.Navigator>
+  );
+};
 
 export const RootNavigator = () => {
   const onboardingCompleted = useAppStore((state) => state.onboardingCompleted);
@@ -149,20 +167,24 @@ export const RootNavigator = () => {
 const styles = StyleSheet.create({
   tabButtonWrap: {
     flex: 1,
-    marginVertical: 2,
+    marginVertical: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
   activePill: {
-    width: '100%',
-    borderRadius: 14,
-    paddingTop: 4,
-    paddingBottom: 1,
+    minWidth: 94,
+    width: '96%',
+    borderRadius: 999,
+    paddingTop: 7,
+    paddingBottom: 4,
+    paddingHorizontal: 14,
   },
   inactivePill: {
-    width: '100%',
-    borderRadius: 14,
-    paddingTop: 4,
-    paddingBottom: 1,
+    minWidth: 94,
+    width: '96%',
+    borderRadius: 999,
+    paddingTop: 7,
+    paddingBottom: 4,
+    paddingHorizontal: 14,
   },
 });

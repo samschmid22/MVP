@@ -1,14 +1,13 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { Card } from '../components/Card';
-import { PrimaryButton } from '../components/Buttons';
-import { Screen } from '../components/Screen';
+import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { goalById, goalOptions } from '../data/goals';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../storage/appStore';
-import { theme } from '../theme';
+import { AppText, Button, Card, Screen } from '../ui/components';
+import { brandByCategory, uiTheme } from '../ui/theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Onboarding'>;
 
@@ -16,11 +15,12 @@ export const OnboardingScreen = ({ navigation }: Props) => {
   const completeOnboarding = useAppStore((state) => state.completeOnboarding);
   const selectedGoalFromState = useAppStore((state) => state.user.selectedGoal);
   const { width } = useWindowDimensions();
-  const columns = width >= 1000 ? 3 : 2;
-  const cardGap = theme.spacing.sm;
+
+  const columns = width >= 1024 ? 3 : width >= 720 ? 2 : 1;
+  const gap = uiTheme.spacing.sm;
   const cardWidth = useMemo(
-    () => Math.max(150, (width - theme.spacing.lg * 2 - cardGap * (columns - 1)) / columns),
-    [width, columns],
+    () => (width - uiTheme.spacing.lg * 2 - gap * (columns - 1)) / columns,
+    [columns, gap, width],
   );
 
   const [selectedGoal, setSelectedGoal] = useState<string>(
@@ -31,51 +31,71 @@ export const OnboardingScreen = ({ navigation }: Props) => {
     <Screen>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.title}>What do you want to focus on?</Text>
-          <Text style={styles.caption}>
+          <AppText variant="h1">What do you want to focus on?</AppText>
+          <AppText variant="body" style={styles.subtext}>
             Pick one to personalize your quick starts (you can change this later).
-          </Text>
+          </AppText>
         </View>
 
-        <Card accentColor={theme.colors.accentPink}>
-          <Text style={styles.disclaimerTitle}>Safety disclaimer</Text>
-          <Text style={styles.disclaimerText}>
+        <Card accent>
+          <AppText variant="caption" style={styles.disclaimerTitle}>
+            Safety
+          </AppText>
+          <AppText variant="body" style={styles.subtext}>
             Not medical advice. Stop if pain. Consult a professional.
-          </Text>
+          </AppText>
         </Card>
 
         <View style={styles.grid}>
           {goalOptions.map((goal) => {
-            const active = selectedGoal === goal.id;
-            const accent = theme.category[goal.focus];
-            return (
+            const selected = selectedGoal === goal.id;
+            const accent = brandByCategory[goal.focus];
+            const tint = `${accent}14`;
+
+            const goalCard = (
               <Pressable
-                key={goal.id}
+                key={selected ? `${goal.id}_selected` : goal.id}
                 onPress={() => setSelectedGoal(goal.id)}
                 style={[
                   styles.goalCard,
                   {
                     width: cardWidth,
-                    backgroundColor: `${accent}14`,
-                    borderColor: active ? accent : `${accent}5A`,
+                    backgroundColor: tint,
+                    borderColor: `${accent}5C`,
                   },
-                  active && styles.goalCardActive,
                 ]}
               >
-                <View style={[styles.iconBubble, { backgroundColor: `${accent}22` }]}>
+                <View style={[styles.goalIconWrap, { backgroundColor: `${accent}24` }]}>
                   <Ionicons name={goal.icon as keyof typeof Ionicons.glyphMap} size={20} color={accent} />
                 </View>
-                <Text style={[styles.goalTitle, active && { color: accent }]}>{goal.title}</Text>
-                <Text style={styles.goalDescription} numberOfLines={2}>
+                <AppText variant="h3" style={[styles.goalTitle, { color: selected ? accent : uiTheme.colors.text }]}>
+                  {goal.title}
+                </AppText>
+                <AppText variant="caption" style={styles.subtext}>
                   {goal.description}
-                </Text>
+                </AppText>
               </Pressable>
+            );
+
+            if (!selected) return goalCard;
+
+            return (
+              <LinearGradient
+                key={goal.id}
+                colors={uiTheme.gradients.brand}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={[styles.goalBorder, { width: cardWidth }]}
+              >
+                {goalCard}
+              </LinearGradient>
             );
           })}
         </View>
 
-        <PrimaryButton
+        <Button
           label="Continue"
+          variant="primary"
           onPress={() => {
             const goal = goalById[selectedGoal];
             completeOnboarding({
@@ -84,7 +104,6 @@ export const OnboardingScreen = ({ navigation }: Props) => {
             });
             navigation.replace('MainTabs');
           }}
-          style={styles.continueButton}
         />
       </ScrollView>
     </Screen>
@@ -93,65 +112,46 @@ export const OnboardingScreen = ({ navigation }: Props) => {
 
 const styles = StyleSheet.create({
   content: {
-    paddingTop: theme.spacing.md,
-    paddingBottom: 56,
-    gap: theme.spacing.md,
+    paddingTop: uiTheme.spacing.md,
+    paddingBottom: 48,
+    gap: uiTheme.spacing.md,
   },
   header: {
-    gap: theme.spacing.xs,
+    gap: uiTheme.spacing.xs,
   },
-  title: {
-    ...theme.typography.h1,
-    color: theme.colors.text,
-  },
-  caption: {
-    ...theme.typography.body,
-    color: theme.colors.muted,
+  subtext: {
+    color: uiTheme.colors.muted,
   },
   disclaimerTitle: {
-    ...theme.typography.small,
-    color: theme.colors.text,
-    fontWeight: '600',
+    color: uiTheme.colors.brandPurple,
     textTransform: 'uppercase',
     letterSpacing: 0.4,
-  },
-  disclaimerText: {
-    ...theme.typography.body,
-    color: theme.colors.muted,
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: theme.spacing.sm,
+    gap: uiTheme.spacing.sm,
+  },
+  goalBorder: {
+    borderRadius: uiTheme.radius.lg,
+    padding: 1.5,
   },
   goalCard: {
-    borderRadius: theme.radii.lg,
+    borderRadius: uiTheme.radius.lg,
     borderWidth: 1,
-    padding: theme.spacing.md,
-    gap: theme.spacing.xs,
+    padding: uiTheme.spacing.md,
     minHeight: 132,
+    gap: uiTheme.spacing.xs,
+    ...uiTheme.shadows.soft,
   },
-  goalCardActive: {
-    ...theme.shadows.soft,
-  },
-  iconBubble: {
+  goalIconWrap: {
     width: 34,
     height: 34,
-    borderRadius: 999,
+    borderRadius: uiTheme.radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
   },
   goalTitle: {
-    ...theme.typography.small,
-    color: theme.colors.text,
     fontWeight: '600',
-  },
-  goalDescription: {
-    ...theme.typography.small,
-    color: theme.colors.muted,
-    fontWeight: '500',
-  },
-  continueButton: {
-    marginTop: theme.spacing.sm,
   },
 });
