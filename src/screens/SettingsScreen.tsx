@@ -25,6 +25,9 @@ export const SettingsScreen = () => {
             <Switch
               value={settings.soundEnabled}
               onValueChange={(value) => updateSettings({ soundEnabled: value })}
+              trackColor={{ false: uiTheme.colors.surfaceAlt, true: uiTheme.colors.brandPurple }}
+              thumbColor={uiTheme.colors.white}
+              ios_backgroundColor={uiTheme.colors.surfaceAlt}
             />
           </View>
           <View style={styles.row}>
@@ -32,6 +35,9 @@ export const SettingsScreen = () => {
             <Switch
               value={settings.vibrationEnabled}
               onValueChange={(value) => updateSettings({ vibrationEnabled: value })}
+              trackColor={{ false: uiTheme.colors.surfaceAlt, true: uiTheme.colors.brandBlue }}
+              thumbColor={uiTheme.colors.white}
+              ios_backgroundColor={uiTheme.colors.surfaceAlt}
             />
           </View>
         </Card>

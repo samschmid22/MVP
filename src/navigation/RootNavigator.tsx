@@ -13,7 +13,7 @@ import { PremiumScreen } from '../screens/PremiumScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { WorkoutBuilderScreen } from '../screens/WorkoutBuilderScreen';
 import { useAppStore } from '../storage/appStore';
-import { getBottomTabScreenOptions } from '../ui/components';
+import { BrandTabBar, getBottomTabScreenOptions } from '../ui/components';
 import { uiTheme } from '../ui/theme';
 import { MainTabParamList, RootStackParamList } from './types';
 
@@ -25,6 +25,7 @@ const MainTabs = () => {
 
   return (
     <Tabs.Navigator
+      tabBar={(props) => <BrandTabBar {...props} />}
       screenOptions={getBottomTabScreenOptions(insets.bottom)}
     >
       <Tabs.Screen

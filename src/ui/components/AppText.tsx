@@ -22,8 +22,8 @@ const styles = StyleSheet.create({
     color: uiTheme.colors.text,
     fontFamily: Platform.select({
       ios: 'Avenir Next',
-      android: 'sans-serif',
-      default: 'system-ui',
+      android: 'sans-serif-medium',
+      default: '"Space Grotesk", "Sora", "Avenir Next", "Segoe UI", system-ui',
     }),
     includeFontPadding: false,
   },

@@ -15,7 +15,7 @@ type ButtonProps = {
   disabled?: boolean;
 };
 
-export const Button = ({
+export const AppButton = ({
   label,
   onPress,
   icon,
@@ -57,8 +57,10 @@ export const Button = ({
   </Pressable>
 );
 
+export const Button = AppButton;
+
 const shared = {
-  minHeight: 46,
+  minHeight: 48,
   borderRadius: uiTheme.radius.pill,
   alignItems: 'center' as const,
   justifyContent: 'center' as const,
@@ -77,7 +79,7 @@ const styles = StyleSheet.create({
   },
   secondaryBorder: {
     ...shared,
-    padding: 1.5,
+    padding: 1,
   },
   secondaryInner: {
     flex: 1,

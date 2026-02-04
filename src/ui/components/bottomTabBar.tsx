@@ -1,77 +1,172 @@
-import { BottomTabBarButtonProps, BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
+import { BottomTabBarProps, BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-native';
 import { uiTheme } from '../theme';
+import { AppText } from './AppText';
 
-export const TabBarButton = ({ accessibilityState, children, onPress, onLongPress }: BottomTabBarButtonProps) => {
-  const selected = accessibilityState?.selected;
+const INDICATOR_WIDTH = 60;
+const INDICATOR_HEIGHT = 40;
+
+export const getBottomTabScreenOptions = (_safeBottomInset: number): BottomTabNavigationOptions => ({
+  headerShown: false,
+});
+
+export const BrandTabBar = ({ state, descriptors, navigation, insets }: BottomTabBarProps) => {
+  const [layoutWidth, setLayoutWidth] = useState(0);
+  const indicatorX = useRef(new Animated.Value(0)).current;
+
+  const routeCount = state.routes.length;
+  const itemWidth = layoutWidth > 0 ? layoutWidth / routeCount : 0;
+
+  const targetX = useMemo(
+    () => (itemWidth > 0 ? state.index * itemWidth + (itemWidth - INDICATOR_WIDTH) / 2 : 0),
+    [itemWidth, state.index],
+  );
+
+  useEffect(() => {
+    Animated.spring(indicatorX, {
+      toValue: targetX,
+      useNativeDriver: true,
+      damping: 20,
+      mass: 0.9,
+      stiffness: 210,
+    }).start();
+  }, [indicatorX, targetX]);
+
+  const handleLayout = (event: LayoutChangeEvent) => {
+    const nextWidth = event.nativeEvent.layout.width;
+    if (nextWidth > 0 && nextWidth !== layoutWidth) {
+      setLayoutWidth(nextWidth);
+    }
+  };
 
   return (
-    <Pressable onPress={onPress} onLongPress={onLongPress} style={styles.buttonWrap} android_ripple={{ color: 'transparent' }}>
-      {selected ? (
-        <LinearGradient colors={uiTheme.gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.activePill}>
-          {children}
-        </LinearGradient>
-      ) : (
-        <View style={styles.inactivePill}>{children}</View>
-      )}
-    </Pressable>
+    <View
+      onLayout={handleLayout}
+      style={[
+        styles.wrapper,
+        {
+          height: 64 + Math.max(0, insets.bottom - 6),
+          paddingBottom: Math.max(8, insets.bottom),
+        },
+      ]}
+    >
+      {itemWidth > 0 ? (
+        <Animated.View style={[styles.activeIndicatorWrap, { transform: [{ translateX: indicatorX }] }]}>
+          <LinearGradient
+            colors={uiTheme.gradients.brand}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.activeIndicator}
+          />
+        </Animated.View>
+      ) : null}
+
+      <View style={styles.row}>
+        {state.routes.map((route, index) => {
+          const { options } = descriptors[route.key];
+          const focused = state.index === index;
+          const color = focused ? uiTheme.colors.white : uiTheme.colors.subtext;
+
+          const labelOption = options.tabBarLabel;
+          const label =
+            typeof labelOption === 'string'
+              ? labelOption
+              : typeof options.title === 'string'
+                ? options.title
+                : route.name;
+
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+
+            if (!focused && !event.defaultPrevented) {
+              navigation.navigate(route.name);
+            }
+          };
+
+          const onLongPress = () => {
+            navigation.emit({
+              type: 'tabLongPress',
+              target: route.key,
+            });
+          };
+
+          return (
+            <Pressable
+              key={route.key}
+              onPress={onPress}
+              onLongPress={onLongPress}
+              style={styles.item}
+              android_ripple={{ color: 'transparent' }}
+            >
+              <View style={styles.iconLayer}>
+                {options.tabBarIcon
+                  ? options.tabBarIcon({
+                      focused,
+                      color,
+                      size: 24,
+                    })
+                  : null}
+              </View>
+              <AppText variant="caption" style={[styles.label, focused && styles.labelActive]}>
+                {label}
+              </AppText>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
   );
 };
 
-export const getBottomTabScreenOptions = (safeBottomInset: number): BottomTabNavigationOptions => ({
-  headerShown: false,
-  tabBarActiveTintColor: uiTheme.colors.white,
-  tabBarInactiveTintColor: uiTheme.colors.subtext,
-  tabBarButton: (props) => <TabBarButton {...props} />,
-  tabBarLabelStyle: {
-    ...uiTheme.typography.caption,
-    marginTop: 2,
-    marginBottom: 0,
-  },
-  tabBarItemStyle: { marginHorizontal: 2, marginVertical: 2 },
-  tabBarStyle: {
+const styles = StyleSheet.create({
+  wrapper: {
     position: 'absolute',
     left: 16,
     right: 16,
     bottom: 16,
     borderRadius: uiTheme.radius.pill,
-    height: 64 + Math.max(0, safeBottomInset - 6),
-    paddingBottom: Math.max(8, safeBottomInset),
-    paddingTop: 8,
+    borderWidth: 1,
+    borderColor: uiTheme.colors.border,
     backgroundColor: uiTheme.colors.tabBarGlass,
-    borderTopWidth: 1,
-    borderTopColor: uiTheme.colors.border,
+    paddingTop: 8,
     ...uiTheme.shadows.tab,
   },
-});
-
-const styles = StyleSheet.create({
-  buttonWrap: {
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  item: {
     flex: 1,
-    width: '100%',
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 2,
+    gap: 2,
+    minHeight: 48,
   },
-  activePill: {
-    width: '100%',
-    minHeight: 52,
-    borderRadius: uiTheme.radius.pill,
-    paddingTop: 7,
-    paddingBottom: 4,
-    paddingHorizontal: 10,
-    alignItems: 'center',
+  iconLayer: {
+    minHeight: 24,
     justifyContent: 'center',
   },
-  inactivePill: {
-    width: '100%',
-    minHeight: 52,
+  label: {
+    color: uiTheme.colors.subtext,
+  },
+  labelActive: {
+    color: uiTheme.colors.white,
+  },
+  activeIndicatorWrap: {
+    position: 'absolute',
+    top: 6,
+    width: INDICATOR_WIDTH,
+    height: INDICATOR_HEIGHT,
     borderRadius: uiTheme.radius.pill,
-    paddingTop: 7,
-    paddingBottom: 4,
-    paddingHorizontal: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
+  },
+  activeIndicator: {
+    flex: 1,
+    borderRadius: uiTheme.radius.pill,
   },
 });

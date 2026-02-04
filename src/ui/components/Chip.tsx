@@ -1,4 +1,5 @@
 import { Pressable, StyleProp, StyleSheet, ViewStyle } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { AppText } from './AppText';
 import { uiTheme } from '../theme';
 import { titleCaseLabel } from '../utils/text';
@@ -12,6 +13,14 @@ type ChipProps = {
 
 export const Chip = ({ label, selected = false, onPress, style }: ChipProps) => (
   <Pressable onPress={onPress} style={[styles.chip, selected && styles.selectedChip, style]}>
+    {selected ? (
+      <LinearGradient
+        colors={uiTheme.gradients.wash}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.selectedFill}
+      />
+    ) : null}
     <AppText variant="caption" style={[styles.label, selected && styles.selectedLabel]}>
       {titleCaseLabel(label)}
     </AppText>
@@ -24,12 +33,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: uiTheme.colors.stroke,
     backgroundColor: uiTheme.colors.surface,
+    minHeight: 34,
     paddingHorizontal: uiTheme.spacing.md,
-    paddingVertical: uiTheme.spacing.sm,
+    paddingVertical: uiTheme.spacing.sm - 1,
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
   selectedChip: {
     borderColor: uiTheme.colors.brandPurple,
-    backgroundColor: uiTheme.colors.surface2,
+    backgroundColor: uiTheme.colors.surface,
+  },
+  selectedFill: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.08,
   },
   label: {
     color: uiTheme.colors.muted,
