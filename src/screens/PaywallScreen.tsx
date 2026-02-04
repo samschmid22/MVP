@@ -1,9 +1,11 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
-import { ActivityIndicator, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Screen } from '../components/Screen';
 import { RootStackParamList } from '../navigation/types';
 import { mockPurchasePremium } from '../services/purchaseService';
-import { colors } from '../utils/theme';
+import { theme } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Paywall'>;
 
@@ -11,8 +13,8 @@ export const PaywallScreen = ({ navigation }: Props) => {
   const [loading, setLoading] = useState(false);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.card}>
+    <Screen>
+      <LinearGradient colors={theme.gradients.premium} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.card}>
         <Text style={styles.title}>Bend Premium</Text>
         <Text style={styles.price}>$9.99 / month (stub)</Text>
         <Text style={styles.feature}>- Type any exercise name and auto-create cartoon media</Text>
@@ -34,29 +36,31 @@ export const PaywallScreen = ({ navigation }: Props) => {
         <Pressable onPress={() => navigation.goBack()}>
           <Text style={styles.cancelText}>Not now</Text>
         </Pressable>
-      </View>
-    </SafeAreaView>
+      </LinearGradient>
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg, justifyContent: 'center', padding: 20 },
   card: {
-    borderRadius: 18,
-    backgroundColor: '#111827',
+    marginTop: 40,
+    borderRadius: 22,
     padding: 20,
     gap: 10,
+    ...theme.shadow.card,
   },
   title: { color: '#fff', fontWeight: '900', fontSize: 30 },
-  price: { color: '#a7f3d0', fontWeight: '700', marginBottom: 8 },
-  feature: { color: '#e5e7eb' },
+  price: { color: '#FDE68A', fontWeight: '800', marginBottom: 8 },
+  feature: { color: '#F8FAFC', fontWeight: '600' },
   buyButton: {
     marginTop: 14,
     borderRadius: 12,
-    backgroundColor: '#0f766e',
+    backgroundColor: 'rgba(255,255,255,0.24)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.42)',
     alignItems: 'center',
     paddingVertical: 12,
   },
   buyText: { color: '#fff', fontWeight: '800' },
-  cancelText: { color: '#9ca3af', textAlign: 'center', marginTop: 8 },
+  cancelText: { color: '#E2E8F0', textAlign: 'center', marginTop: 8, fontWeight: '700' },
 });

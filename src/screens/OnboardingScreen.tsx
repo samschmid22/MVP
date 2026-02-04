@@ -1,9 +1,10 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useState } from 'react';
-import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../storage/appStore';
-import { colors } from '../utils/theme';
+import { Screen } from '../components/Screen';
+import { theme } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Onboarding'>;
 
@@ -14,6 +15,14 @@ const goals: Array<'Mobility' | 'Posture' | 'Stability' | 'Balance' | 'Flexibili
   'Balance',
   'Flexibility',
 ];
+
+const goalColor: Record<(typeof goals)[number], string> = {
+  Mobility: theme.category.Mobility,
+  Posture: theme.category.Posture,
+  Stability: theme.category.Stability,
+  Balance: theme.category.Balance,
+  Flexibility: theme.colors.primary,
+};
 
 export const OnboardingScreen = ({ navigation }: Props) => {
   const userPreferences = useAppStore((state) => state.user.preferences);
@@ -29,10 +38,13 @@ export const OnboardingScreen = ({ navigation }: Props) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <Screen>
       <View style={styles.content}>
         <Text style={styles.title}>Welcome to Bend MVP</Text>
+        <Text style={styles.caption}>Build your plan around how you want to feel.</Text>
+
         <View style={styles.disclaimerCard}>
+          <View style={styles.accentBar} />
           <Text style={styles.disclaimerTitle}>Safety Disclaimer</Text>
           <Text style={styles.disclaimerText}>
             Not medical advice. Stop if pain. Consult a professional.
@@ -43,13 +55,17 @@ export const OnboardingScreen = ({ navigation }: Props) => {
         <View style={styles.goalWrap}>
           {goals.map((goal) => {
             const active = selectedGoals.includes(goal);
+            const accent = goalColor[goal];
             return (
               <Pressable
                 key={goal}
                 onPress={() => toggleGoal(goal)}
-                style={[styles.goalChip, active && styles.goalChipActive]}
+                style={[
+                  styles.goalChip,
+                  active && { backgroundColor: `${accent}1A`, borderColor: accent },
+                ]}
               >
-                <Text style={[styles.goalText, active && styles.goalTextActive]}>{goal}</Text>
+                <Text style={[styles.goalText, active && { color: accent }]}>{goal}</Text>
               </Pressable>
             );
           })}
@@ -65,43 +81,53 @@ export const OnboardingScreen = ({ navigation }: Props) => {
           <Text style={styles.buttonText}>Continue</Text>
         </Pressable>
       </View>
-    </SafeAreaView>
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg },
-  content: { flex: 1, padding: 20, justifyContent: 'center', gap: 18 },
-  title: { fontSize: 30, fontWeight: '800', color: colors.text },
+  content: { flex: 1, paddingTop: 40, gap: 16 },
+  title: { ...theme.type.h1, color: theme.colors.text },
+  caption: { color: theme.colors.muted, fontSize: 14, fontWeight: '600' },
   disclaimerCard: {
-    borderRadius: 16,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: '#fff',
+    borderColor: theme.colors.border,
+    backgroundColor: '#FFFFFFEC',
     padding: 16,
     gap: 8,
+    position: 'relative',
+    overflow: 'hidden',
+    ...theme.shadow.soft,
   },
-  disclaimerTitle: { fontSize: 16, fontWeight: '700', color: colors.text },
-  disclaimerText: { color: colors.subtext, lineHeight: 20 },
-  sectionLabel: { fontSize: 15, fontWeight: '700', color: colors.text },
+  accentBar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 4,
+    backgroundColor: theme.category.Posture,
+  },
+  disclaimerTitle: { fontSize: 16, fontWeight: '800', color: theme.colors.text },
+  disclaimerText: { color: theme.colors.muted, lineHeight: 20 },
+  sectionLabel: { fontSize: 16, fontWeight: '800', color: theme.colors.text },
   goalWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   goalChip: {
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: theme.colors.border,
     borderRadius: 999,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFFE8',
   },
-  goalChipActive: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
-  goalText: { color: colors.subtext, fontWeight: '600' },
-  goalTextActive: { color: colors.primary },
+  goalText: { color: theme.colors.muted, fontWeight: '700' },
   button: {
-    marginTop: 14,
-    backgroundColor: colors.primary,
+    marginTop: 10,
+    backgroundColor: theme.colors.primary,
     borderRadius: 14,
     alignItems: 'center',
     paddingVertical: 14,
+    ...theme.shadow.card,
   },
-  buttonText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  buttonText: { color: '#fff', fontWeight: '800', fontSize: 16 },
 });

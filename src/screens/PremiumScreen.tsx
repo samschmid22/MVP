@@ -1,19 +1,20 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
-import { LocalExerciseMediaGenerator } from '../services/exerciseMediaGenerator';
 import { RootStackParamList } from '../navigation/types';
+import { LocalExerciseMediaGenerator } from '../services/exerciseMediaGenerator';
 import { useAppStore } from '../storage/appStore';
-import { colors } from '../utils/theme';
+import { Screen } from '../components/Screen';
+import { theme } from '../theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Premium'>;
 
@@ -30,67 +31,71 @@ export const PremiumScreen = ({ navigation }: Props) => {
 
   if (!isPremium) {
     return (
-      <SafeAreaView style={styles.container}>
+      <Screen>
         <View style={styles.centeredCard}>
           <Text style={styles.title}>Premium Required</Text>
           <Text style={styles.subtitle}>
-            Unlock "Type Any Name -> Cartoon Animation" to generate custom exercises.
+            Unlock "Type Any Name to Cartoon Animation" to generate custom exercises.
           </Text>
           <Pressable style={styles.primaryButton} onPress={() => navigation.navigate('Paywall')}>
             <Text style={styles.primaryButtonText}>Open Paywall</Text>
           </Pressable>
         </View>
-      </SafeAreaView>
+      </Screen>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <Screen>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <Text style={styles.heading}>AI Cartoon Generator</Text>
-        <Text style={styles.caption}>Type any exercise/workout name and add it to your library.</Text>
+        <View>
+          <Text style={styles.heading}>AI Cartoon Generator</Text>
+          <Text style={styles.caption}>Type any exercise/workout name and add it to your library.</Text>
+        </View>
 
-        <TextInput
-          style={styles.input}
-          value={inputName}
-          onChangeText={setInputName}
-          placeholder="e.g., 90/90 hip switch"
-          placeholderTextColor="#94a3b8"
-        />
+        <LinearGradient colors={theme.gradients.cardBluePink} style={styles.panel}>
+          <TextInput
+            style={styles.input}
+            value={inputName}
+            onChangeText={setInputName}
+            placeholder="e.g., 90/90 hip switch"
+            placeholderTextColor="#94a3b8"
+          />
 
-        <Pressable
-          style={styles.primaryButton}
-          disabled={loading || inputName.trim().length < 3}
-          onPress={async () => {
-            setLoading(true);
-            setResultMessage(null);
-            try {
-              const generated = await generator.generateExerciseMedia(inputName.trim());
-              const created = addCustomExercise({
-                name: inputName.trim(),
-                category: 'Mobility',
-                tags: generated.tags,
-                bodyAreas: ['Full Body'],
-                difficulty: 'Beginner',
-                instructions: generated.instructions,
-                defaultDurationSec: generated.durationDefault,
-                mediaType: generated.mediaType,
-                mediaUrl: generated.mediaUrl,
-              });
-              setResultMessage(`Added: ${created.name}. You can find it in Library.`);
-            } catch {
-              setResultMessage('Something went wrong while generating media. Try again.');
-            } finally {
-              setLoading(false);
-            }
-          }}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.primaryButtonText}>Generate Cartoon Exercise</Text>
-          )}
-        </Pressable>
+          <Pressable
+            style={styles.primaryButton}
+            disabled={loading || inputName.trim().length < 3}
+            onPress={async () => {
+              setLoading(true);
+              setResultMessage(null);
+              try {
+                const generated = await generator.generateExerciseMedia(inputName.trim());
+                const created = addCustomExercise({
+                  name: inputName.trim(),
+                  category: 'Mobility',
+                  tags: generated.tags,
+                  bodyAreas: ['Full Body'],
+                  difficulty: 'Beginner',
+                  instructions: generated.instructions,
+                  defaultDurationSec: generated.durationDefault,
+                  mediaType: generated.mediaType,
+                  mediaUrl: generated.mediaUrl,
+                });
+                setResultMessage(`Added: ${created.name}. You can find it in Library.`);
+              } catch {
+                setResultMessage('Something went wrong while generating media. Try again.');
+              } finally {
+                setLoading(false);
+              }
+            }}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.primaryButtonText}>Generate Cartoon Exercise</Text>
+            )}
+          </Pressable>
+        </LinearGradient>
 
         {resultMessage ? (
           <View style={styles.resultCard}>
@@ -98,44 +103,51 @@ export const PremiumScreen = ({ navigation }: Props) => {
           </View>
         ) : null}
       </ScrollView>
-    </SafeAreaView>
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: 16, gap: 12 },
+  content: { paddingTop: theme.spacing.sm, paddingBottom: 120, gap: 14 },
   centeredCard: {
-    margin: 20,
-    borderRadius: 16,
+    marginTop: 30,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: '#fff',
+    borderColor: theme.colors.border,
+    backgroundColor: '#FFFFFFEA',
     padding: 20,
     gap: 12,
+    ...theme.shadow.card,
   },
-  heading: { fontSize: 28, fontWeight: '800', color: colors.text },
-  title: { fontSize: 24, fontWeight: '800', color: colors.text },
-  caption: { color: colors.subtext },
-  subtitle: { color: colors.subtext, lineHeight: 20 },
+  heading: { ...theme.type.h1, color: theme.colors.text },
+  title: { fontSize: 26, fontWeight: '800', color: theme.colors.text },
+  caption: { color: theme.colors.muted, marginTop: 2 },
+  subtitle: { color: theme.colors.muted, lineHeight: 20 },
+  panel: {
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    padding: 14,
+    gap: 10,
+  },
   input: {
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: theme.colors.border,
     borderRadius: 12,
     backgroundColor: '#fff',
     paddingHorizontal: 12,
     paddingVertical: 10,
-    color: colors.text,
+    color: theme.colors.text,
   },
   primaryButton: {
     borderRadius: 12,
-    backgroundColor: colors.primary,
+    backgroundColor: theme.colors.primary,
     paddingVertical: 12,
     alignItems: 'center',
   },
   primaryButtonText: { color: '#fff', fontWeight: '800' },
   resultCard: {
-    marginTop: 8,
+    marginTop: 4,
     borderRadius: 12,
     backgroundColor: '#ecfeff',
     borderWidth: 1,

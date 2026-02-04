@@ -1,8 +1,9 @@
 import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { BottomTabBarButtonProps, createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
-import { View } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Pressable, StyleSheet, View } from 'react-native';
 import { HomeScreen } from '../screens/HomeScreen';
 import { LibraryScreen } from '../screens/LibraryScreen';
 import { OnboardingScreen } from '../screens/OnboardingScreen';
@@ -18,25 +19,46 @@ import { MainTabParamList, RootStackParamList } from './types';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tabs = createBottomTabNavigator<MainTabParamList>();
 
+const TabBarButton = ({ accessibilityState, children, onPress, onLongPress }: BottomTabBarButtonProps) => {
+  const selected = accessibilityState?.selected;
+
+  return (
+    <Pressable onPress={onPress} onLongPress={onLongPress} style={styles.tabButtonWrap}>
+      {selected ? (
+        <LinearGradient
+          colors={theme.gradients.premium}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.activePill}
+        >
+          {children}
+        </LinearGradient>
+      ) : (
+        <View style={styles.inactivePill}>{children}</View>
+      )}
+    </Pressable>
+  );
+};
+
 const MainTabs = () => (
   <Tabs.Navigator
     screenOptions={{
       headerShown: false,
-      tabBarActiveTintColor: theme.colors.primary,
+      tabBarActiveTintColor: '#FFFFFF',
       tabBarInactiveTintColor: theme.colors.muted,
-      tabBarLabelStyle: { fontSize: 12, fontWeight: '700', marginBottom: 2 },
-      tabBarItemStyle: {
-        marginHorizontal: 6,
-        marginTop: 8,
-        marginBottom: 8,
-        borderRadius: theme.radius.pill,
-      },
-      tabBarActiveBackgroundColor: '#FFFFFF',
+      tabBarButton: (props) => <TabBarButton {...props} />,
+      tabBarLabelStyle: { fontSize: 11, fontWeight: '800', marginBottom: 1 },
+      tabBarItemStyle: { marginHorizontal: 4, marginVertical: 8 },
       tabBarStyle: {
-        height: 76,
+        position: 'absolute',
+        left: 10,
+        right: 10,
+        bottom: 10,
+        borderRadius: 24,
+        height: 82,
         paddingBottom: 10,
         paddingTop: 4,
-        backgroundColor: theme.colors.tabBar,
+        backgroundColor: 'rgba(232,238,250,0.92)',
         borderTopWidth: 1,
         borderTopColor: '#CBD5E1',
         ...theme.shadow.tabBar,
@@ -49,8 +71,8 @@ const MainTabs = () => (
       options={{
         tabBarLabel: 'Home',
         tabBarIcon: ({ color, focused }) => (
-          <View style={{ transform: [{ scale: focused ? 1.06 : 1 }] }}>
-            <Ionicons name={focused ? 'home' : 'home-outline'} size={26} color={color} />
+          <View style={{ transform: [{ scale: focused ? 1.1 : 1 }] }}>
+            <Ionicons name={focused ? 'home' : 'home-outline'} size={27} color={focused ? '#fff' : color} />
           </View>
         ),
       }}
@@ -61,8 +83,8 @@ const MainTabs = () => (
       options={{
         tabBarLabel: 'Library',
         tabBarIcon: ({ color, focused }) => (
-          <View style={{ transform: [{ scale: focused ? 1.06 : 1 }] }}>
-            <Ionicons name={focused ? 'grid' : 'grid-outline'} size={26} color={color} />
+          <View style={{ transform: [{ scale: focused ? 1.1 : 1 }] }}>
+            <Ionicons name={focused ? 'grid' : 'grid-outline'} size={27} color={focused ? '#fff' : color} />
           </View>
         ),
       }}
@@ -73,8 +95,12 @@ const MainTabs = () => (
       options={{
         tabBarLabel: 'Settings',
         tabBarIcon: ({ color, focused }) => (
-          <View style={{ transform: [{ scale: focused ? 1.06 : 1 }] }}>
-            <Ionicons name={focused ? 'settings' : 'settings-outline'} size={26} color={color} />
+          <View style={{ transform: [{ scale: focused ? 1.1 : 1 }] }}>
+            <Ionicons
+              name={focused ? 'settings' : 'settings-outline'}
+              size={27}
+              color={focused ? '#fff' : color}
+            />
           </View>
         ),
       }}
@@ -115,3 +141,24 @@ export const RootNavigator = () => {
     </NavigationContainer>
   );
 };
+
+const styles = StyleSheet.create({
+  tabButtonWrap: {
+    flex: 1,
+    marginVertical: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  activePill: {
+    width: '100%',
+    borderRadius: 16,
+    paddingTop: 6,
+    paddingBottom: 2,
+  },
+  inactivePill: {
+    width: '100%',
+    borderRadius: 16,
+    paddingTop: 6,
+    paddingBottom: 2,
+  },
+});

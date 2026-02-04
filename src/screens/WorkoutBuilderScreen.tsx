@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import { EmptyState } from '../components/EmptyState';
+import { Screen } from '../components/Screen';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore, useWorkoutItems } from '../storage/appStore';
 import { Exercise } from '../types/models';
@@ -146,7 +147,7 @@ export const WorkoutBuilderScreen = ({ route, navigation }: Props) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <Screen>
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={styles.heading}>{workoutId ? 'Edit Workout' : 'Create Workout'}</Text>
 
@@ -241,7 +242,7 @@ export const WorkoutBuilderScreen = ({ route, navigation }: Props) => {
           </ScrollView>
         </SafeAreaView>
       </Modal>
-    </SafeAreaView>
+    </Screen>
   );
 };
 

@@ -25,19 +25,24 @@ const inferCategory = (name: string): 'stretch' | 'posture' | 'balance' => {
   return 'stretch';
 };
 
-const fuzzyMatchExercise = (inputName: string, exercises: Exercise[]) => {
+const fuzzyMatchExercise = (
+  inputName: string,
+  exercises: Exercise[],
+): Exercise | null => {
   const normalizedInput = normalizeText(inputName);
-  let best: { exercise: Exercise; score: number } | null = null;
+  let bestExercise: Exercise | null = null;
+  let bestScore = -1;
 
   exercises.forEach((exercise) => {
     const score = fuzzyScore(normalizedInput, exercise.normalizedName);
-    if (!best || score > best.score) {
-      best = { exercise, score };
+    if (score > bestScore) {
+      bestScore = score;
+      bestExercise = exercise;
     }
   });
 
-  if (best && best.score >= 0.64) {
-    return best.exercise;
+  if (bestExercise && bestScore >= 0.64) {
+    return bestExercise;
   }
 
   return null;

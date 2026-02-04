@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Exercise } from '../types/models';
 import { theme } from '../theme';
@@ -10,10 +11,14 @@ type Props = {
   onToggleFavorite: () => void;
 };
 
-const cardPalette = ['#DBEAFE', '#FCE7F3', '#FEF3C7'];
+const cardPalette = [
+  ['#BFDBFE', '#DBEAFE'],
+  ['#FBCFE8', '#FCE7F3'],
+  ['#FDE68A', '#FEF3C7'],
+] as const;
 
 const ExerciseThumb = ({ name, id }: { name: string; id: string }) => {
-  const color = cardPalette[id.charCodeAt(id.length - 1) % cardPalette.length];
+  const gradient = cardPalette[id.charCodeAt(id.length - 1) % cardPalette.length];
   const initials = name
     .split(' ')
     .slice(0, 2)
@@ -21,16 +26,22 @@ const ExerciseThumb = ({ name, id }: { name: string; id: string }) => {
     .join('');
 
   return (
-    <View style={[styles.thumb, { backgroundColor: color }]}> 
+    <LinearGradient colors={gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.thumb}>
+      <View style={styles.dot} />
+      <View style={styles.dotTwo} />
       <View style={styles.blob} />
-      <Ionicons name="accessibility" size={26} color={theme.colors.text} style={styles.poseIcon} />
+      <Ionicons name="accessibility" size={27} color={theme.colors.text} style={styles.poseIcon} />
       <Text style={styles.initials}>{initials}</Text>
-    </View>
+    </LinearGradient>
   );
 };
 
 export const ExerciseCard = ({ exercise, isFavorite, onPress, onToggleFavorite }: Props) => (
-  <Pressable style={styles.card} onPress={onPress}>
+  <Pressable
+    style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+    onPress={onPress}
+  >
+    <View style={[styles.accentBar, { backgroundColor: theme.category[exercise.category] }]} />
     <ExerciseThumb name={exercise.name} id={exercise.id} />
     <Pressable onPress={onToggleFavorite} hitSlop={8} style={styles.favoriteButton}>
       <Ionicons
@@ -66,17 +77,46 @@ const styles = StyleSheet.create({
     padding: theme.spacing.md,
     gap: theme.spacing.sm,
     ...theme.shadow.card,
+    overflow: 'hidden',
+  },
+  cardPressed: {
+    transform: [{ scale: 0.98 }],
+  },
+  accentBar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 5,
   },
   thumb: {
-    height: 108,
+    height: 102,
     borderRadius: theme.radius.md,
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
   },
+  dot: {
+    width: 60,
+    height: 60,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.22)',
+    position: 'absolute',
+    top: -12,
+    right: -6,
+  },
+  dotTwo: {
+    width: 20,
+    height: 20,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.35)',
+    position: 'absolute',
+    top: 18,
+    right: 42,
+  },
   blob: {
-    width: 92,
-    height: 92,
+    width: 86,
+    height: 86,
     borderRadius: 999,
     backgroundColor: 'rgba(255,255,255,0.55)',
   },
@@ -94,16 +134,18 @@ const styles = StyleSheet.create({
   },
   favoriteButton: {
     position: 'absolute',
-    right: 10,
-    top: 10,
-    backgroundColor: '#FFFFFFD9',
+    right: 12,
+    top: 12,
+    backgroundColor: 'rgba(255,255,255,0.64)',
+    borderWidth: 1,
+    borderColor: '#FFFFFF8A',
     borderRadius: theme.radius.pill,
     padding: 5,
   },
   title: {
     ...theme.type.title,
     color: theme.colors.text,
-    minHeight: 40,
+    minHeight: 34,
   },
   duration: {
     ...theme.type.caption,

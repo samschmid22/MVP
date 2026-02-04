@@ -11,9 +11,10 @@ import {
 } from 'react-native';
 import { EmptyState } from '../components/EmptyState';
 import { ExerciseCard } from '../components/ExerciseCard';
+import { Screen } from '../components/Screen';
 import { useAppStore } from '../storage/appStore';
-import { ExerciseCategory } from '../types/models';
 import { theme } from '../theme';
+import { ExerciseCategory } from '../types/models';
 
 const categories: ExerciseCategory[] = [
   'Mobility',
@@ -23,15 +24,6 @@ const categories: ExerciseCategory[] = [
   'Warmup',
   'Cooldown',
 ];
-
-const categoryColor: Record<ExerciseCategory, string> = {
-  Mobility: '#3B82F6',
-  Posture: '#EC4899',
-  Stability: '#FBBF24',
-  Balance: '#3B82F6',
-  Warmup: '#EC4899',
-  Cooldown: '#FBBF24',
-};
 
 export const LibraryScreen = () => {
   const [search, setSearch] = useState('');
@@ -55,7 +47,10 @@ export const LibraryScreen = () => {
 
   const listHeader = (
     <View style={styles.headerWrap}>
-      <Text style={styles.heading}>Exercise Library</Text>
+      <View>
+        <Text style={styles.heading}>Exercise Library</Text>
+        <Text style={styles.subheading}>Browse moves with visual cards and smart filters</Text>
+      </View>
 
       <View style={styles.searchWrap}>
         <Ionicons name="search" size={18} color={theme.colors.muted} />
@@ -71,21 +66,18 @@ export const LibraryScreen = () => {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
         <Pressable
           onPress={() => setCategory('All')}
-          style={[styles.categoryChip, category === 'All' && styles.categoryChipActive, { borderColor: '#CBD5E1' }]}
+          style={[
+            styles.categoryChip,
+            category === 'All' && styles.categoryChipActive,
+            { borderColor: '#CBD5E1' },
+          ]}
         >
-          <Text
-            style={[
-              styles.categoryText,
-              category === 'All' && { color: theme.colors.primary },
-            ]}
-          >
-            All
-          </Text>
+          <Text style={[styles.categoryText, category === 'All' && { color: theme.colors.primary }]}>All</Text>
         </Pressable>
 
         {categories.map((item) => {
           const active = category === item;
-          const accent = categoryColor[item];
+          const accent = theme.category[item];
           return (
             <Pressable
               key={item}
@@ -116,38 +108,40 @@ export const LibraryScreen = () => {
   );
 
   return (
-    <View style={styles.container}>
-      {filtered.length === 0 ? (
-        <ScrollView contentContainerStyle={styles.emptyContainer}>
-          {listHeader}
-          <EmptyState title="No exercises found" subtitle="Try another search or filter." />
-        </ScrollView>
-      ) : (
-        <FlatList
-          data={filtered}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          columnWrapperStyle={styles.columnRow}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContent}
-          ListHeaderComponent={listHeader}
-          renderItem={({ item }) => (
-            <ExerciseCard
-              exercise={item}
-              isFavorite={favoriteExerciseIds.includes(item.id)}
-              onToggleFavorite={() => toggleFavorite(item.id)}
-            />
-          )}
-        />
-      )}
-    </View>
+    <Screen padded={false}>
+      <View style={styles.container}>
+        {filtered.length === 0 ? (
+          <ScrollView contentContainerStyle={styles.emptyContainer}>
+            {listHeader}
+            <EmptyState title="No exercises found" subtitle="Try another search or filter." />
+          </ScrollView>
+        ) : (
+          <FlatList
+            data={filtered}
+            keyExtractor={(item) => item.id}
+            numColumns={2}
+            columnWrapperStyle={styles.columnRow}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+            ListHeaderComponent={listHeader}
+            renderItem={({ item }) => (
+              <ExerciseCard
+                exercise={item}
+                isFavorite={favoriteExerciseIds.includes(item.id)}
+                onToggleFavorite={() => toggleFavorite(item.id)}
+              />
+            )}
+          />
+        )}
+      </View>
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: 'transparent',
   },
   listContent: {
     paddingHorizontal: theme.spacing.lg,
@@ -157,23 +151,28 @@ const styles = StyleSheet.create({
   },
   headerWrap: {
     gap: theme.spacing.md,
-    marginBottom: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
   },
   heading: {
     ...theme.type.h1,
     color: theme.colors.text,
   },
+  subheading: {
+    marginTop: 2,
+    ...theme.type.body,
+    color: theme.colors.muted,
+  },
   searchWrap: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.sm,
-    backgroundColor: theme.colors.card,
+    backgroundColor: '#FFFFFFF0',
     borderRadius: theme.radius.lg,
     borderWidth: 1,
     borderColor: theme.colors.border,
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.sm,
-    ...theme.shadow.card,
+    ...theme.shadow.soft,
   },
   searchInput: {
     flex: 1,
@@ -189,7 +188,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.pill,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    backgroundColor: theme.colors.card,
+    backgroundColor: '#FFFFFFE6',
     paddingHorizontal: 13,
     paddingVertical: 8,
   },
@@ -199,7 +198,7 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '800',
     color: theme.colors.muted,
   },
   favoriteToggle: {
@@ -207,7 +206,7 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.pill,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    backgroundColor: theme.colors.card,
+    backgroundColor: '#FFFFFFE6',
     paddingHorizontal: 12,
     paddingVertical: 8,
     flexDirection: 'row',
@@ -220,7 +219,7 @@ const styles = StyleSheet.create({
   },
   favoriteText: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '800',
     color: theme.colors.muted,
   },
   favoriteTextActive: {

@@ -1,6 +1,8 @@
-import { Pressable, SafeAreaView, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Screen } from '../components/Screen';
 import { useAppStore } from '../storage/appStore';
-import { colors } from '../utils/theme';
+import { theme } from '../theme';
 
 export const SettingsScreen = () => {
   const settings = useAppStore((state) => state.settings);
@@ -9,35 +11,53 @@ export const SettingsScreen = () => {
   const setPremium = useAppStore((state) => state.setPremium);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.heading}>Settings</Text>
+    <Screen>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View>
+          <Text style={styles.heading}>Settings</Text>
+          <Text style={styles.subheading}>Tune your cues, units, and app preferences</Text>
+        </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Safety disclaimer</Text>
-          <Text style={styles.cardText}>
-            Not medical advice. Stop if pain. Consult a professional.
-          </Text>
+          <View style={styles.cardAccent} />
+          <View style={styles.cardHeader}>
+            <Ionicons name="shield-checkmark" size={17} color={theme.category.Mobility} />
+            <Text style={styles.cardTitle}>Safety</Text>
+          </View>
+          <Text style={styles.cardText}>Not medical advice. Stop if pain. Consult a professional.</Text>
         </View>
 
-        <View style={styles.row}>
-          <Text style={styles.rowLabel}>Sound cues</Text>
-          <Switch
-            value={settings.soundEnabled}
-            onValueChange={(value) => updateSettings({ soundEnabled: value })}
-          />
+        <View style={styles.card}>
+          <View style={[styles.cardAccent, { backgroundColor: theme.category.Posture }]} />
+          <View style={styles.cardHeader}>
+            <Ionicons name="volume-high" size={17} color={theme.category.Posture} />
+            <Text style={styles.cardTitle}>Session cues</Text>
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.rowLabel}>Sound cues</Text>
+            <Switch
+              value={settings.soundEnabled}
+              onValueChange={(value) => updateSettings({ soundEnabled: value })}
+            />
+          </View>
+
+          <View style={styles.row}>
+            <Text style={styles.rowLabel}>Vibration cues</Text>
+            <Switch
+              value={settings.vibrationEnabled}
+              onValueChange={(value) => updateSettings({ vibrationEnabled: value })}
+            />
+          </View>
         </View>
 
-        <View style={styles.row}>
-          <Text style={styles.rowLabel}>Vibration cues</Text>
-          <Switch
-            value={settings.vibrationEnabled}
-            onValueChange={(value) => updateSettings({ vibrationEnabled: value })}
-          />
-        </View>
+        <View style={styles.card}>
+          <View style={[styles.cardAccent, { backgroundColor: theme.category.Stability }]} />
+          <View style={styles.cardHeader}>
+            <Ionicons name="resize" size={17} color={theme.category.Stability} />
+            <Text style={styles.cardTitle}>Units</Text>
+          </View>
 
-        <View style={styles.row}>
-          <Text style={styles.rowLabel}>Units</Text>
           <View style={styles.segmentedRow}>
             <Pressable
               style={[styles.segmentBtn, settings.units === 'metric' && styles.segmentBtnActive]}
@@ -61,56 +81,119 @@ export const SettingsScreen = () => {
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Premium debug toggle</Text>
+          <View style={[styles.cardAccent, { backgroundColor: theme.category.Balance }]} />
+          <View style={styles.cardHeader}>
+            <Ionicons name="sparkles" size={17} color={theme.category.Balance} />
+            <Text style={styles.cardTitle}>Premium debug</Text>
+          </View>
           <Text style={styles.cardText}>Use this for MVP testing without store keys.</Text>
-          <Pressable
-            style={styles.mockButton}
-            onPress={() => setPremium(!isPremium)}
-          >
+          <Pressable style={styles.mockButton} onPress={() => setPremium(!isPremium)}>
             <Text style={styles.mockButtonText}>{isPremium ? 'Disable Premium' : 'Enable Premium'}</Text>
           </Pressable>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: 16, gap: 12 },
-  heading: { fontSize: 28, fontWeight: '800', color: colors.text },
+  content: {
+    paddingTop: theme.spacing.sm,
+    paddingBottom: 120,
+    gap: theme.spacing.md,
+  },
+  heading: {
+    ...theme.type.h1,
+    color: theme.colors.text,
+  },
+  subheading: {
+    marginTop: 2,
+    ...theme.type.body,
+    color: theme.colors.muted,
+  },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 14,
+    backgroundColor: '#FFFFFFE8',
+    borderRadius: theme.radius.lg,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: 14,
+    borderColor: theme.colors.border,
+    padding: theme.spacing.md,
+    gap: 10,
+    position: 'relative',
+    overflow: 'hidden',
+    ...theme.shadow.soft,
+  },
+  cardAccent: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 4,
+    backgroundColor: theme.category.Mobility,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
   },
-  cardTitle: { fontSize: 16, fontWeight: '700', color: colors.text },
-  cardText: { color: colors.subtext, lineHeight: 20 },
+  cardTitle: {
+    ...theme.type.subtitle,
+    color: theme.colors.text,
+  },
+  cardText: {
+    ...theme.type.body,
+    color: theme.colors.muted,
+    lineHeight: 20,
+  },
   row: {
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: 14,
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
   },
-  rowLabel: { color: colors.text, fontWeight: '700' },
-  segmentedRow: { flexDirection: 'row', borderRadius: 10, overflow: 'hidden', borderWidth: 1, borderColor: colors.border },
-  segmentBtn: { paddingHorizontal: 12, paddingVertical: 8, backgroundColor: '#fff' },
-  segmentBtnActive: { backgroundColor: colors.primarySoft },
-  segmentBtnText: { color: colors.subtext, fontWeight: '700' },
-  segmentBtnTextActive: { color: colors.primary },
-  mockButton: {
-    marginTop: 4,
-    borderRadius: 10,
-    backgroundColor: '#111827',
+  rowLabel: {
+    color: theme.colors.text,
+    fontWeight: '700',
+    fontSize: 14,
+  },
+  segmentedRow: {
+    flexDirection: 'row',
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+  segmentBtn: {
+    flex: 1,
+    paddingHorizontal: 12,
     paddingVertical: 10,
+    backgroundColor: '#fff',
     alignItems: 'center',
   },
-  mockButtonText: { color: '#fff', fontWeight: '700' },
+  segmentBtnActive: {
+    backgroundColor: '#DBEAFE',
+  },
+  segmentBtnText: {
+    color: theme.colors.muted,
+    fontWeight: '700',
+    fontSize: 13,
+  },
+  segmentBtnTextActive: {
+    color: theme.colors.primary,
+  },
+  mockButton: {
+    borderRadius: 12,
+    backgroundColor: '#111827',
+    paddingVertical: 11,
+    alignItems: 'center',
+  },
+  mockButtonText: {
+    color: '#fff',
+    fontWeight: '800',
+    fontSize: 13,
+  },
 });

@@ -1,6 +1,7 @@
 export const theme = {
   colors: {
     background: '#F6F7FB',
+    backgroundSoft: '#EFF4FF',
     card: '#FFFFFF',
     text: '#0F172A',
     muted: '#64748B',
@@ -8,7 +9,23 @@ export const theme = {
     primary: '#3B82F6',
     accentPink: '#EC4899',
     accentYellow: '#FBBF24',
+    accentTeal: '#14B8A6',
     tabBar: '#E8EEFA',
+    shadow: '#0F172A',
+  },
+  gradients: {
+    hero: ['#60A5FA', '#EC4899', '#FBBF24'] as const,
+    wash: ['rgba(236,72,153,0.14)', 'rgba(59,130,246,0.14)', 'rgba(251,191,36,0.16)'] as const,
+    premium: ['#3B82F6', '#EC4899'] as const,
+    cardBluePink: ['#DBEAFE', '#FCE7F3'] as const,
+  },
+  category: {
+    Mobility: '#3B82F6',
+    Posture: '#EC4899',
+    Stability: '#FBBF24',
+    Balance: '#14B8A6',
+    Warmup: '#3B82F6',
+    Cooldown: '#EC4899',
   },
   spacing: {
     xs: 4,
@@ -29,9 +46,16 @@ export const theme = {
     card: {
       shadowColor: '#0F172A',
       shadowOffset: { width: 0, height: 6 },
-      shadowOpacity: 0.08,
+      shadowOpacity: 0.1,
       shadowRadius: 14,
       elevation: 3,
+    },
+    soft: {
+      shadowColor: '#0F172A',
+      shadowOffset: { width: 0, height: 3 },
+      shadowOpacity: 0.06,
+      shadowRadius: 8,
+      elevation: 2,
     },
     tabBar: {
       shadowColor: '#0F172A',
@@ -42,9 +66,10 @@ export const theme = {
     },
   },
   type: {
-    h1: { fontSize: 30, fontWeight: '800' as const },
-    h2: { fontSize: 24, fontWeight: '800' as const },
+    h1: { fontSize: 32, fontWeight: '800' as const },
+    h2: { fontSize: 26, fontWeight: '800' as const },
     title: { fontSize: 16, fontWeight: '700' as const },
+    subtitle: { fontSize: 15, fontWeight: '700' as const },
     body: { fontSize: 14, fontWeight: '500' as const },
     caption: { fontSize: 12, fontWeight: '600' as const },
   },
