@@ -25,6 +25,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   padded: {
-    paddingHorizontal: uiTheme.spacing.xl,
+    paddingHorizontal: uiTheme.spacing.xxl,
   },
 });

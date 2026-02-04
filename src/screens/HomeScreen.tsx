@@ -160,7 +160,7 @@ export const HomeScreen = () => {
         title="Quick Start"
         subtitle="Pick a template and begin in seconds."
         actionLabel="Build workout"
-        actionVariant="outline"
+        actionVariant="primary"
         onActionPress={() => navigation.navigate('WorkoutBuilder')}
       />
 

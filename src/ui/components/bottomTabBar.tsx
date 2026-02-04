@@ -5,9 +5,9 @@ import { Animated, LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-
 import { uiTheme } from '../theme';
 import { AppText } from './AppText';
 
-const INDICATOR_WIDTH = 54;
-const INDICATOR_HEIGHT = 34;
-const TAB_BAR_BASE_HEIGHT = 62;
+const INDICATOR_WIDTH = 88;
+const INDICATOR_HEIGHT = 46;
+const TAB_BAR_BASE_HEIGHT = 70;
 const TAB_BAR_BOTTOM_OFFSET = 16;
 
 export const getFloatingTabBarPadding = (safeInsetBottom: number): number =>
@@ -24,9 +24,11 @@ export const BrandTabBar = ({ state, descriptors, navigation, insets }: BottomTa
   const routeCount = state.routes.length;
   const itemWidth = layoutWidth > 0 ? layoutWidth / routeCount : 0;
 
+  const indicatorWidth = itemWidth > 0 ? Math.min(INDICATOR_WIDTH, itemWidth - 8) : INDICATOR_WIDTH;
+
   const targetX = useMemo(
-    () => (itemWidth > 0 ? state.index * itemWidth + (itemWidth - INDICATOR_WIDTH) / 2 : 0),
-    [itemWidth, state.index],
+    () => (itemWidth > 0 ? state.index * itemWidth + (itemWidth - indicatorWidth) / 2 : 0),
+    [indicatorWidth, itemWidth, state.index],
   );
 
   useEffect(() => {
@@ -58,7 +60,13 @@ export const BrandTabBar = ({ state, descriptors, navigation, insets }: BottomTa
       ]}
     >
       {itemWidth > 0 ? (
-        <Animated.View style={[styles.activeIndicatorWrap, { transform: [{ translateX: indicatorX }] }]}>
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.activeIndicatorWrap,
+            { width: indicatorWidth, transform: [{ translateX: indicatorX }] },
+          ]}
+        >
           <LinearGradient
             colors={uiTheme.gradients.brand}
             start={{ x: 0, y: 0 }}
@@ -145,13 +153,15 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
+    position: 'relative',
+    zIndex: 1,
   },
   item: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 2,
-    minHeight: 46,
+    minHeight: 52,
   },
   iconLayer: {
     minHeight: 24,
@@ -164,14 +174,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   labelActive: {
-    color: uiTheme.colors.brandPurple,
+    color: uiTheme.colors.white,
   },
   activeIndicatorWrap: {
     position: 'absolute',
-    top: 7,
-    width: INDICATOR_WIDTH,
+    top: 6,
     height: INDICATOR_HEIGHT,
     borderRadius: uiTheme.radius.pill,
+    zIndex: 0,
     ...uiTheme.shadows.soft,
   },
   activeIndicator: {
