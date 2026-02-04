@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Bend MVP",
+    "slug": "bend-mvp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#f6f7fb"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mvp.bend"
+    },
+    "android": {
+      "package": "com.mvp.bend"
+    },
+    "plugins": [
+      "react-native-reanimated"
+    ]
+  }
+}
