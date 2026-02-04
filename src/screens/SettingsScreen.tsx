@@ -1,10 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppStore } from '../storage/appStore';
-import { AppText, Button, Card, Screen, SectionHeader } from '../ui/components';
+import { AppText, Button, Card, Screen, SectionHeader, getFloatingTabBarPadding } from '../ui/components';
 import { uiTheme } from '../ui/theme';
 
 export const SettingsScreen = () => {
+  const insets = useSafeAreaInsets();
   const settings = useAppStore((state) => state.settings);
   const updateSettings = useAppStore((state) => state.updateSettings);
   const isPremium = useAppStore((state) => state.user.isPremium);
@@ -12,10 +14,13 @@ export const SettingsScreen = () => {
 
   return (
     <Screen>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <SectionHeader title="Settings" subtitle="Tune cues, units, and premium testing options." />
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: getFloatingTabBarPadding(insets.bottom) + uiTheme.spacing.lg }]}
+        showsVerticalScrollIndicator={false}
+      >
+        <SectionHeader title="Settings" subtitle="Session cues, units, and premium controls." />
 
-        <Card accent>
+        <Card style={styles.sectionCard}>
           <View style={styles.cardTitleRow}>
             <Ionicons name="volume-high-outline" size={18} color={uiTheme.colors.brandPurple} />
             <AppText variant="h3">Session cues</AppText>
@@ -42,7 +47,7 @@ export const SettingsScreen = () => {
           </View>
         </Card>
 
-        <Card accent>
+        <Card style={styles.sectionCard}>
           <View style={styles.cardTitleRow}>
             <Ionicons name="resize-outline" size={18} color={uiTheme.colors.brandPink} />
             <AppText variant="h3">Units</AppText>
@@ -67,7 +72,7 @@ export const SettingsScreen = () => {
           </View>
         </Card>
 
-        <Card accent>
+        <Card style={styles.sectionCard}>
           <View style={styles.cardTitleRow}>
             <Ionicons name="sparkles-outline" size={18} color={uiTheme.colors.brandBlue} />
             <AppText variant="h3">Premium</AppText>
@@ -88,15 +93,17 @@ export const SettingsScreen = () => {
 
 const styles = StyleSheet.create({
   content: {
-    paddingTop: uiTheme.spacing.sm,
-    paddingBottom: 118,
-    gap: uiTheme.spacing.md,
+    paddingTop: uiTheme.spacing.md,
+    gap: uiTheme.spacing.lg,
+  },
+  sectionCard: {
+    backgroundColor: uiTheme.colors.surfaceAlt,
   },
   cardTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: uiTheme.spacing.sm,
-    marginBottom: uiTheme.spacing.sm,
+    marginBottom: uiTheme.spacing.md,
   },
   row: {
     flexDirection: 'row',
@@ -106,9 +113,9 @@ const styles = StyleSheet.create({
     borderColor: uiTheme.colors.stroke,
     borderRadius: uiTheme.radius.md,
     backgroundColor: uiTheme.colors.surface,
-    paddingHorizontal: uiTheme.spacing.md,
-    paddingVertical: uiTheme.spacing.sm,
-    marginTop: uiTheme.spacing.xs,
+    paddingHorizontal: uiTheme.spacing.lg,
+    paddingVertical: uiTheme.spacing.md,
+    marginTop: uiTheme.spacing.sm,
   },
   unitRow: {
     flexDirection: 'row',
@@ -122,7 +129,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: uiTheme.spacing.sm + 2,
+    paddingVertical: uiTheme.spacing.md,
   },
   unitChipActive: {
     backgroundColor: uiTheme.colors.surface2,
@@ -136,6 +143,6 @@ const styles = StyleSheet.create({
   },
   mutedText: {
     color: uiTheme.colors.muted,
-    marginBottom: uiTheme.spacing.sm,
+    marginBottom: uiTheme.spacing.md,
   },
 });

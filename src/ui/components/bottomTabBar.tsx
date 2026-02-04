@@ -5,8 +5,13 @@ import { Animated, LayoutChangeEvent, Pressable, StyleSheet, View } from 'react-
 import { uiTheme } from '../theme';
 import { AppText } from './AppText';
 
-const INDICATOR_WIDTH = 60;
-const INDICATOR_HEIGHT = 40;
+const INDICATOR_WIDTH = 54;
+const INDICATOR_HEIGHT = 34;
+const TAB_BAR_BASE_HEIGHT = 62;
+const TAB_BAR_BOTTOM_OFFSET = 16;
+
+export const getFloatingTabBarPadding = (safeInsetBottom: number): number =>
+  TAB_BAR_BASE_HEIGHT + TAB_BAR_BOTTOM_OFFSET + Math.max(8, safeInsetBottom);
 
 export const getBottomTabScreenOptions = (_safeBottomInset: number): BottomTabNavigationOptions => ({
   headerShown: false,
@@ -47,7 +52,7 @@ export const BrandTabBar = ({ state, descriptors, navigation, insets }: BottomTa
       style={[
         styles.wrapper,
         {
-          height: 64 + Math.max(0, insets.bottom - 6),
+          height: TAB_BAR_BASE_HEIGHT + Math.max(0, insets.bottom - 6),
           paddingBottom: Math.max(8, insets.bottom),
         },
       ]}
@@ -129,12 +134,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 16,
     right: 16,
-    bottom: 16,
+    bottom: TAB_BAR_BOTTOM_OFFSET,
     borderRadius: uiTheme.radius.pill,
     borderWidth: 1,
     borderColor: uiTheme.colors.border,
     backgroundColor: uiTheme.colors.tabBarGlass,
-    paddingTop: 8,
+    paddingTop: 6,
     ...uiTheme.shadows.tab,
   },
   row: {
@@ -146,7 +151,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 2,
-    minHeight: 48,
+    minHeight: 46,
   },
   iconLayer: {
     minHeight: 24,
@@ -154,16 +159,20 @@ const styles = StyleSheet.create({
   },
   label: {
     color: uiTheme.colors.subtext,
+    fontSize: 11,
+    lineHeight: 14,
+    fontWeight: '600',
   },
   labelActive: {
-    color: uiTheme.colors.white,
+    color: uiTheme.colors.brandPurple,
   },
   activeIndicatorWrap: {
     position: 'absolute',
-    top: 6,
+    top: 7,
     width: INDICATOR_WIDTH,
     height: INDICATOR_HEIGHT,
     borderRadius: uiTheme.radius.pill,
+    ...uiTheme.shadows.soft,
   },
   activeIndicator: {
     flex: 1,

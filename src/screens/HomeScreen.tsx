@@ -3,11 +3,12 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, FlatList, Modal, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Alert, FlatList, Modal, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GoalFocus, goalById } from '../data/goals';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../storage/appStore';
-import { AppText, Button, Card, Chip, Screen, SectionHeader } from '../ui/components';
+import { AppText, Button, Card, Chip, Screen, SectionHeader, getFloatingTabBarPadding } from '../ui/components';
 import { brandByCategory, uiTheme } from '../ui/theme';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -22,6 +23,7 @@ type TemplateMeta = {
 export const HomeScreen = () => {
   const navigation = useNavigation<Nav>();
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const columns = width >= 980 ? 3 : 2;
 
   const workouts = useAppStore((state) => state.workouts);
@@ -105,27 +107,23 @@ export const HomeScreen = () => {
 
   const renderHeader = (
     <View style={styles.headerContent}>
-      <Card accent style={styles.hero}>
+      <Card style={[styles.hero, styles.sectionSurface]}>
         <View style={styles.heroTop}>
           <View style={styles.heroText}>
-            <AppText variant="h1">Ready to move?</AppText>
+            <AppText variant="h1">Start a session</AppText>
             <AppText variant="body" style={styles.mutedText}>
-              Pick a flow, reset posture, and feel better today.
+              Choose a routine or build one.
             </AppText>
           </View>
           <LinearGradient colors={uiTheme.gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.heroBadge}>
             <Ionicons name="sparkles-outline" size={18} color={uiTheme.colors.white} />
           </LinearGradient>
         </View>
-        <Button
-          label="Start a workout"
-          variant="primary"
-          onPress={handleStartWorkout}
-        />
+        <Button label="Start a workout" variant="primary" onPress={handleStartWorkout} style={styles.fullWidthButton} />
       </Card>
 
       {lastWorkout ? (
-        <Card accent>
+        <Card style={styles.sectionSurface}>
           <View style={styles.continueRow}>
             <View style={styles.iconTile}>
               <Ionicons name="body-outline" size={22} color={uiTheme.colors.brandPurple} />
@@ -143,13 +141,14 @@ export const HomeScreen = () => {
               label="Resume"
               variant="primary"
               onPress={() => navigation.navigate('Player', { workoutId: lastWorkout.id })}
+              style={styles.resumeButton}
             />
           </View>
         </Card>
       ) : (
-        <Card accent>
+        <Card style={styles.sectionSurface}>
           <View style={styles.nowContent}>
-            <AppText variant="h3">No active workout</AppText>
+            <AppText variant="h3">No session in progress</AppText>
             <AppText variant="caption" style={styles.mutedText}>
               Start a workout from the hero or build a routine from Quick Start.
             </AppText>
@@ -159,28 +158,29 @@ export const HomeScreen = () => {
 
       <SectionHeader
         title="Quick Start"
-        subtitle="Choose a flow and start in seconds."
-        actionLabel="+ Build workout"
+        subtitle="Pick a template and begin in seconds."
+        actionLabel="Build workout"
+        actionVariant="outline"
         onActionPress={() => navigation.navigate('WorkoutBuilder')}
       />
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
+      <View style={styles.chipsRow}>
         {(['All', 'Mobility', 'Posture', 'Stability', 'Balance'] as GoalFocus[]).map((item) => (
           <Chip key={item} label={item} selected={focus === item} onPress={() => setFocus(item)} />
         ))}
-      </ScrollView>
+      </View>
 
       <Pressable onPress={() => setPremiumModalVisible(true)}>
-        <Card accent style={styles.premiumCard}>
+        <Card style={[styles.premiumCard, styles.sectionSurface]}>
           <LinearGradient colors={uiTheme.gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.premiumIcon}>
             <Ionicons name="sparkles-outline" size={18} color={uiTheme.colors.white} />
           </LinearGradient>
           <View style={styles.flexBlock}>
             <AppText variant="body" style={styles.premiumTitle}>
-              Type any exercise → instant cartoon
+              Generate an exercise cue card (Premium)
             </AppText>
             <AppText variant="caption" style={styles.mutedText}>
-              Unlock custom generation with Premium.
+              Create custom guided cards from any exercise name.
             </AppText>
           </View>
         </Card>
@@ -195,7 +195,7 @@ export const HomeScreen = () => {
           <Card style={styles.modalCard}>
             <AppText variant="h3">Premium (Coming Soon)</AppText>
             <AppText variant="body" style={styles.mutedText}>
-              Premium will unlock typing any exercise name and getting an instant cartoon-style guided animation.
+              Premium will unlock custom cue cards generated from any exercise name.
             </AppText>
             <View style={styles.modalActions}>
               <Button label="Not now" variant="ghost" onPress={() => setPremiumModalVisible(false)} style={styles.modalAction} />
@@ -224,7 +224,7 @@ export const HomeScreen = () => {
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
         columnWrapperStyle={columns > 1 ? styles.columnRow : undefined}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: getFloatingTabBarPadding(insets.bottom) + uiTheme.spacing.lg }]}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={
           <Card>
@@ -248,7 +248,6 @@ export const HomeScreen = () => {
 
           return (
             <Card style={styles.templateCard}>
-              <LinearGradient colors={uiTheme.gradients.brandSoft} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.templateStrip} />
               <View style={styles.templateTop}>
                 <View style={[styles.templateIcon, { backgroundColor: `${accent}20` }]}>
                   <Ionicons name="body-outline" size={16} color={accent} />
@@ -261,7 +260,7 @@ export const HomeScreen = () => {
                 {item.name}
               </AppText>
               <AppText variant="caption" style={styles.mutedText} numberOfLines={2}>
-                {item.description || 'Move, breathe, and feel better.'}
+                {item.description || 'Structured mobility and posture work.'}
               </AppText>
               <AppText variant="caption" style={styles.metaText}>
                 {metaByWorkoutId[item.id]?.itemCount ?? 0} exercises • {metaByWorkoutId[item.id]?.minutes ?? 1} min
@@ -277,15 +276,17 @@ export const HomeScreen = () => {
 
 const styles = StyleSheet.create({
   content: {
-    paddingTop: uiTheme.spacing.sm,
-    paddingBottom: 118,
-    gap: uiTheme.spacing.md,
+    paddingTop: uiTheme.spacing.md,
+    gap: uiTheme.spacing.lg,
   },
   headerContent: {
-    gap: uiTheme.spacing.md,
+    gap: uiTheme.spacing.lg,
   },
   hero: {
-    gap: uiTheme.spacing.md,
+    gap: uiTheme.spacing.lg,
+  },
+  sectionSurface: {
+    backgroundColor: uiTheme.colors.surfaceAlt,
   },
   heroTop: {
     flexDirection: 'row',
@@ -297,25 +298,26 @@ const styles = StyleSheet.create({
     gap: uiTheme.spacing.xs,
   },
   heroBadge: {
-    width: 34,
-    height: 34,
+    width: 38,
+    height: 38,
     borderRadius: uiTheme.radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
+    ...uiTheme.shadows.soft,
   },
   continueRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: uiTheme.spacing.sm,
+    gap: uiTheme.spacing.md,
   },
   nowContent: {
-    gap: uiTheme.spacing.sm,
+    gap: uiTheme.spacing.xs,
   },
   iconTile: {
     width: 44,
     height: 44,
     borderRadius: uiTheme.radius.md,
-    backgroundColor: uiTheme.colors.surface2,
+    backgroundColor: uiTheme.colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -331,21 +333,27 @@ const styles = StyleSheet.create({
   mutedText: {
     color: uiTheme.colors.muted,
   },
+  fullWidthButton: {
+    alignSelf: 'stretch',
+  },
+  resumeButton: {
+    minWidth: 90,
+  },
   chipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: uiTheme.spacing.sm,
-    paddingRight: uiTheme.spacing.sm,
   },
   premiumCard: {
     borderRadius: uiTheme.radius.lg,
-    padding: uiTheme.spacing.md,
+    padding: uiTheme.spacing.lg,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: uiTheme.spacing.sm,
-    ...uiTheme.shadows.soft,
+    gap: uiTheme.spacing.md,
   },
   premiumIcon: {
-    width: 30,
-    height: 30,
+    width: 34,
+    height: 34,
     borderRadius: uiTheme.radius.pill,
     backgroundColor: uiTheme.colors.whiteOverlay,
     alignItems: 'center',
@@ -356,35 +364,27 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   columnRow: {
-    gap: uiTheme.spacing.sm,
+    gap: uiTheme.spacing.md,
   },
   templateCard: {
     flex: 1,
-    marginTop: uiTheme.spacing.sm,
-    gap: uiTheme.spacing.sm,
-  },
-  templateStrip: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 4,
+    marginTop: uiTheme.spacing.md,
+    gap: uiTheme.spacing.md,
   },
   templateTop: {
-    marginTop: uiTheme.spacing.sm,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   templateIcon: {
-    width: 28,
-    height: 28,
+    width: 32,
+    height: 32,
     borderRadius: uiTheme.radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
   },
   metaText: {
-    color: uiTheme.colors.brandPurple,
+    color: uiTheme.colors.subtext,
     fontWeight: '600',
   },
   modalBackdrop: {

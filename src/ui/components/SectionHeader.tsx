@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { AppText } from './AppText';
-import { Button } from './Button';
+import { Button, ButtonVariant } from './Button';
 import { uiTheme } from '../theme';
 
 type SectionHeaderProps = {
@@ -8,9 +8,16 @@ type SectionHeaderProps = {
   subtitle?: string;
   actionLabel?: string;
   onActionPress?: () => void;
+  actionVariant?: ButtonVariant;
 };
 
-export const SectionHeader = ({ title, subtitle, actionLabel, onActionPress }: SectionHeaderProps) => (
+export const SectionHeader = ({
+  title,
+  subtitle,
+  actionLabel,
+  onActionPress,
+  actionVariant = 'outline',
+}: SectionHeaderProps) => (
   <View style={styles.row}>
     <View style={styles.textWrap}>
       <AppText variant="h2">{title}</AppText>
@@ -20,7 +27,9 @@ export const SectionHeader = ({ title, subtitle, actionLabel, onActionPress }: S
         </AppText>
       ) : null}
     </View>
-    {actionLabel ? <Button variant="secondary" label={actionLabel} onPress={onActionPress} style={styles.action} /> : null}
+    {actionLabel ? (
+      <Button variant={actionVariant} label={actionLabel} onPress={onActionPress} style={styles.action} />
+    ) : null}
   </View>
 );
 
@@ -38,6 +47,6 @@ const styles = StyleSheet.create({
     color: uiTheme.colors.muted,
   },
   action: {
-    minWidth: 120,
+    minWidth: 130,
   },
 });

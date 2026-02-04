@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { AppText } from './AppText';
 import { uiTheme } from '../theme';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
 
 type ButtonProps = {
   label: string;
@@ -37,10 +37,18 @@ export const AppButton = ({
       </LinearGradient>
     ) : null}
     {variant === 'secondary' ? (
-      <LinearGradient colors={uiTheme.gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.secondaryBorder}>
-        <View style={styles.secondaryInner}>
+      <View style={styles.secondary}>
+        {icon ? <View style={styles.icon}>{icon}</View> : null}
+        <AppText variant="button" style={styles.secondaryText}>
+          {label}
+        </AppText>
+      </View>
+    ) : null}
+    {variant === 'outline' ? (
+      <LinearGradient colors={uiTheme.gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.outlineBorder}>
+        <View style={styles.outlineInner}>
           {icon ? <View style={styles.icon}>{icon}</View> : null}
-          <AppText variant="button" style={styles.secondaryText}>
+          <AppText variant="button" style={styles.outlineText}>
             {label}
           </AppText>
         </View>
@@ -65,7 +73,7 @@ const shared = {
   alignItems: 'center' as const,
   justifyContent: 'center' as const,
   flexDirection: 'row' as const,
-  paddingHorizontal: uiTheme.spacing.lg,
+  paddingHorizontal: uiTheme.spacing.xl,
   gap: uiTheme.spacing.xs,
 };
 
@@ -77,32 +85,44 @@ const styles = StyleSheet.create({
   primaryText: {
     color: uiTheme.colors.white,
   },
-  secondaryBorder: {
+  secondary: {
+    ...shared,
+    backgroundColor: uiTheme.colors.surfaceAlt,
+    borderWidth: 1,
+    borderColor: uiTheme.colors.stroke,
+  },
+  secondaryText: {
+    color: uiTheme.colors.text,
+  },
+  outlineBorder: {
     ...shared,
     padding: 1,
   },
-  secondaryInner: {
-    flex: 1,
-    minHeight: 43,
+  outlineInner: {
+    minHeight: 46,
     borderRadius: uiTheme.radius.pill,
-    backgroundColor: uiTheme.colors.surface,
+    backgroundColor: 'rgba(243, 238, 255, 0.55)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    paddingHorizontal: uiTheme.spacing.xl,
+    gap: uiTheme.spacing.xs,
+  },
+  outlineText: {
+    color: uiTheme.colors.brandPurple,
+  },
+  ghost: {
+    minHeight: 40,
+    borderRadius: uiTheme.radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
     gap: uiTheme.spacing.xs,
-    paddingHorizontal: uiTheme.spacing.lg,
-  },
-  secondaryText: {
-    color: uiTheme.colors.brandPurple,
-  },
-  ghost: {
-    ...shared,
-    minHeight: 40,
-    paddingHorizontal: uiTheme.spacing.md,
+    paddingHorizontal: uiTheme.spacing.sm,
     backgroundColor: 'transparent',
   },
   ghostText: {
-    color: uiTheme.colors.muted,
+    color: uiTheme.colors.brandPurple,
   },
   icon: {
     alignItems: 'center',

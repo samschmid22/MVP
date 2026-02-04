@@ -1,10 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useMemo, useState } from 'react';
-import { Alert, FlatList, Modal, Pressable, ScrollView, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import { Alert, FlatList, Modal, Pressable, StyleSheet, TextInput, View, useWindowDimensions } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppStore } from '../storage/appStore';
 import { Exercise, ExerciseCategory } from '../types/models';
-import { AppText, Button, Card, Chip, Screen, SectionHeader } from '../ui/components';
+import { AppText, Button, Card, Chip, Screen, SectionHeader, getFloatingTabBarPadding } from '../ui/components';
 import { brandByCategory, uiTheme } from '../ui/theme';
 
 const categories: Array<'All' | ExerciseCategory> = [
@@ -19,6 +19,7 @@ const categories: Array<'All' | ExerciseCategory> = [
 
 export const LibraryScreen = () => {
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const columns = width >= 980 ? 3 : 2;
 
   const [search, setSearch] = useState('');
@@ -54,11 +55,10 @@ export const LibraryScreen = () => {
         keyExtractor={(item) => item.id}
         columnWrapperStyle={columns > 1 ? styles.columnRow : undefined}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: getFloatingTabBarPadding(insets.bottom) + uiTheme.spacing.lg }]}
         ListHeaderComponent={
           <View style={styles.header}>
-            <SectionHeader title="Exercise Library" subtitle="Browse moves with quick filters and favorites." />
-            <LinearGradient colors={uiTheme.gradients.brandSoft} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.headerAccent} />
+            <SectionHeader title="Exercise Library" subtitle="Search, filter, and save favorites." />
             <View style={styles.searchWrap}>
               <Ionicons name="search" size={18} color={uiTheme.colors.muted} />
               <TextInput
@@ -69,14 +69,14 @@ export const LibraryScreen = () => {
                 placeholderTextColor={uiTheme.colors.muted}
               />
             </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
+            <View style={styles.chipsRow}>
               {categories.map((item) => (
                 <Chip key={item} label={item} selected={category === item} onPress={() => setCategory(item)} />
               ))}
-            </ScrollView>
+            </View>
             <Button
               label={favoritesOnly ? 'Favorites only' : 'Show favorites'}
-              variant={favoritesOnly ? 'secondary' : 'ghost'}
+              variant={favoritesOnly ? 'outline' : 'secondary'}
               onPress={() => setFavoritesOnly((prev) => !prev)}
               icon={
                 <Ionicons
@@ -101,9 +101,11 @@ export const LibraryScreen = () => {
           const accent = brandByCategory[item.category];
           const isFavorite = favoriteExerciseIds.includes(item.id);
           return (
-            <Pressable style={styles.exerciseCardPressable} onPress={() => setSelectedExercise(item)}>
+            <Pressable
+              style={({ pressed }) => [styles.exerciseCardPressable, pressed && styles.exerciseCardPressed]}
+              onPress={() => setSelectedExercise(item)}
+            >
               <Card style={styles.exerciseCard}>
-                <LinearGradient colors={uiTheme.gradients.brandSoft} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.cardTop} />
                 <View style={styles.cardHeader}>
                   <View style={[styles.cardThumb, { backgroundColor: `${accent}20` }]}>
                     <Ionicons name="accessibility-outline" size={20} color={accent} />
@@ -175,25 +177,20 @@ export const LibraryScreen = () => {
 
 const styles = StyleSheet.create({
   content: {
-    paddingTop: uiTheme.spacing.sm,
-    paddingBottom: 118,
-    gap: uiTheme.spacing.sm,
+    paddingTop: uiTheme.spacing.md,
+    gap: uiTheme.spacing.md,
   },
   header: {
-    gap: uiTheme.spacing.md,
-    marginBottom: uiTheme.spacing.sm,
-  },
-  headerAccent: {
-    height: 3,
-    borderRadius: uiTheme.radius.pill,
+    gap: uiTheme.spacing.lg,
+    marginBottom: uiTheme.spacing.md,
   },
   searchWrap: {
     borderRadius: uiTheme.radius.lg,
     borderWidth: 1,
     borderColor: uiTheme.colors.stroke,
-    backgroundColor: uiTheme.colors.surface,
-    paddingHorizontal: uiTheme.spacing.md,
-    paddingVertical: uiTheme.spacing.sm + 2,
+    backgroundColor: uiTheme.colors.surfaceAlt,
+    paddingHorizontal: uiTheme.spacing.lg,
+    paddingVertical: uiTheme.spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
     gap: uiTheme.spacing.sm,
@@ -205,32 +202,29 @@ const styles = StyleSheet.create({
     ...uiTheme.typography.body,
   },
   chipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: uiTheme.spacing.sm,
-    paddingRight: uiTheme.spacing.sm,
   },
   favoritesButton: {
     alignSelf: 'flex-start',
   },
   columnRow: {
-    gap: uiTheme.spacing.sm,
+    gap: uiTheme.spacing.md,
   },
   exerciseCard: {
     gap: uiTheme.spacing.sm,
   },
   exerciseCardPressable: {
     flex: 1,
-    marginBottom: uiTheme.spacing.sm,
+    marginBottom: uiTheme.spacing.md,
     gap: uiTheme.spacing.sm,
   },
-  cardTop: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 4,
+  exerciseCardPressed: {
+    opacity: 0.95,
+    transform: [{ scale: 0.985 }],
   },
   cardHeader: {
-    marginTop: uiTheme.spacing.sm,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -243,8 +237,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   heartButton: {
-    width: 30,
-    height: 30,
+    width: 32,
+    height: 32,
     borderRadius: uiTheme.radius.pill,
     borderWidth: 1,
     borderColor: uiTheme.colors.stroke,

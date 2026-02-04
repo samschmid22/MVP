@@ -4,4 +4,4 @@ export { AppButton, Button } from './Button';
 export { Card } from './Card';
 export { Chip } from './Chip';
 export { SectionHeader } from './SectionHeader';
-export { BrandTabBar, getBottomTabScreenOptions } from './bottomTabBar';
+export { BrandTabBar, getBottomTabScreenOptions, getFloatingTabBarPadding } from './bottomTabBar';

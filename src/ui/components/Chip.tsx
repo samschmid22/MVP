@@ -32,27 +32,27 @@ const styles = StyleSheet.create({
     borderRadius: uiTheme.radius.pill,
     borderWidth: 1,
     borderColor: uiTheme.colors.stroke,
-    backgroundColor: uiTheme.colors.surface,
-    minHeight: 34,
-    paddingHorizontal: uiTheme.spacing.md,
+    backgroundColor: uiTheme.colors.surfaceAlt,
+    minHeight: 36,
+    paddingHorizontal: uiTheme.spacing.lg,
     paddingVertical: uiTheme.spacing.sm - 1,
     justifyContent: 'center',
     overflow: 'hidden',
   },
   selectedChip: {
-    borderColor: uiTheme.colors.brandPurple,
+    borderColor: uiTheme.colors.brandBlue,
     backgroundColor: uiTheme.colors.surface,
   },
   selectedFill: {
     ...StyleSheet.absoluteFillObject,
-    opacity: 0.08,
+    opacity: 0.12,
   },
   label: {
     color: uiTheme.colors.muted,
     textDecorationLine: 'none',
   },
   selectedLabel: {
-    color: uiTheme.colors.brandPurple,
+    color: uiTheme.colors.brandBlue,
     fontWeight: '600',
   },
 });
