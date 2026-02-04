@@ -10,6 +10,8 @@ export type Difficulty = 'Beginner' | 'Intermediate' | 'Advanced';
 
 export type MediaType = 'lottie' | 'video';
 
+export type UserPreference = 'Mobility' | 'Posture' | 'Stability' | 'Balance' | 'Flexibility';
+
 export interface Exercise {
   id: string;
   name: string;
@@ -42,7 +44,8 @@ export interface WorkoutItem {
 }
 
 export interface User {
-  preferences: Array<'Mobility' | 'Posture' | 'Stability' | 'Balance' | 'Flexibility'>;
+  preferences: UserPreference[];
+  selectedGoal: string | null;
   isPremium: boolean;
   favoriteExerciseIds: string[];
 }

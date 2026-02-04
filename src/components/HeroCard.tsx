@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import { PrimaryButton, SecondaryButton } from './Buttons';
 import { theme } from '../theme';
 
 type HeroCardProps = {
@@ -21,7 +22,7 @@ export const HeroCard = ({
   onSecondaryPress,
 }: HeroCardProps) => (
   <LinearGradient
-    colors={theme.gradients.hero}
+    colors={theme.gradients.brand}
     start={{ x: 0, y: 0 }}
     end={{ x: 1, y: 1 }}
     style={styles.card}
@@ -31,12 +32,18 @@ export const HeroCard = ({
       <Text style={styles.subtitle}>{subtitle}</Text>
 
       <View style={styles.actions}>
-        <Pressable style={styles.primaryBtn} onPress={onPrimaryPress}>
-          <Text style={styles.primaryText}>{primaryLabel}</Text>
-        </Pressable>
-        <Pressable style={styles.secondaryBtn} onPress={onSecondaryPress}>
-          <Text style={styles.secondaryText}>{secondaryLabel}</Text>
-        </Pressable>
+        <PrimaryButton
+          label={primaryLabel}
+          onPress={onPrimaryPress}
+          style={styles.primaryBtn}
+          textStyle={styles.primaryText}
+        />
+        <SecondaryButton
+          label={secondaryLabel}
+          onPress={onSecondaryPress}
+          style={styles.secondaryBtn}
+          textStyle={styles.secondaryText}
+        />
       </View>
     </View>
 
@@ -52,61 +59,48 @@ export const HeroCard = ({
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 24,
-    padding: theme.spacing.xl,
+    borderRadius: theme.radii.xxl,
+    padding: theme.spacing.lg,
     flexDirection: 'row',
     justifyContent: 'space-between',
     gap: theme.spacing.md,
-    ...theme.shadow.card,
+    minHeight: 188,
+    ...theme.shadows.card,
   },
   left: {
     flex: 1,
-    gap: theme.spacing.sm,
+    gap: theme.spacing.xs,
   },
   title: {
     color: '#fff',
-    fontSize: 28,
-    fontWeight: '900',
-    lineHeight: 33,
+    ...theme.typography.display,
   },
   subtitle: {
     color: '#F8FAFC',
-    fontSize: 14,
-    fontWeight: '600',
-    lineHeight: 20,
+    ...theme.typography.body,
     maxWidth: 220,
   },
   actions: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     gap: theme.spacing.sm,
-    marginTop: 4,
+    marginTop: theme.spacing.sm,
   },
   primaryBtn: {
-    backgroundColor: '#fff',
-    borderRadius: theme.radius.pill,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    alignSelf: 'flex-start',
   },
   primaryText: {
-    color: theme.colors.text,
-    fontWeight: '800',
-    fontSize: 13,
+    color: '#FFFFFF',
   },
   secondaryBtn: {
-    backgroundColor: 'rgba(255,255,255,0.24)',
-    borderWidth: 1,
+    alignSelf: 'flex-start',
     borderColor: 'rgba(255,255,255,0.45)',
-    borderRadius: theme.radius.pill,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    backgroundColor: 'rgba(255,255,255,0.2)',
   },
   secondaryText: {
     color: '#fff',
-    fontWeight: '800',
-    fontSize: 13,
   },
   illustrationWrap: {
-    width: 90,
+    width: 88,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
@@ -122,10 +116,10 @@ const styles = StyleSheet.create({
     left: 8,
   },
   iconBubble: {
-    width: 66,
-    height: 66,
+    width: 70,
+    height: 70,
     borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.78)',
+    backgroundColor: 'rgba(255,255,255,0.8)',
     alignItems: 'center',
     justifyContent: 'center',
   },

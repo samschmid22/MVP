@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { EmptyState } from '../components/EmptyState';
 import { ExerciseCard } from '../components/ExerciseCard';
+import { PillChip } from '../components/PillChip';
 import { Screen } from '../components/Screen';
 import { useAppStore } from '../storage/appStore';
 import { theme } from '../theme';
@@ -64,31 +65,24 @@ export const LibraryScreen = () => {
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
-        <Pressable
+        <PillChip
+          label="All"
+          active={category === 'All'}
+          accent={theme.colors.primary}
           onPress={() => setCategory('All')}
-          style={[
-            styles.categoryChip,
-            category === 'All' && styles.categoryChipActive,
-            { borderColor: '#CBD5E1' },
-          ]}
-        >
-          <Text style={[styles.categoryText, category === 'All' && { color: theme.colors.primary }]}>All</Text>
-        </Pressable>
+        />
 
         {categories.map((item) => {
           const active = category === item;
           const accent = theme.category[item];
           return (
-            <Pressable
+            <PillChip
               key={item}
+              label={item}
+              active={active}
+              accent={accent}
               onPress={() => setCategory(item)}
-              style={[
-                styles.categoryChip,
-                active && { backgroundColor: `${accent}1A`, borderColor: accent },
-              ]}
-            >
-              <Text style={[styles.categoryText, active && { color: accent }]}>{item}</Text>
-            </Pressable>
+            />
           );
         })}
       </ScrollView>
@@ -154,12 +148,12 @@ const styles = StyleSheet.create({
     marginBottom: theme.spacing.md,
   },
   heading: {
-    ...theme.type.h1,
+    ...theme.typography.h1,
     color: theme.colors.text,
   },
   subheading: {
     marginTop: 2,
-    ...theme.type.body,
+    ...theme.typography.body,
     color: theme.colors.muted,
   },
   searchWrap: {
@@ -177,33 +171,15 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     color: theme.colors.text,
-    fontSize: 14,
-    fontWeight: '600',
+    ...theme.typography.body,
   },
   chipsRow: {
     gap: theme.spacing.sm,
     paddingRight: theme.spacing.md,
   },
-  categoryChip: {
-    borderRadius: theme.radius.pill,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: '#FFFFFFE6',
-    paddingHorizontal: 13,
-    paddingVertical: 8,
-  },
-  categoryChipActive: {
-    backgroundColor: '#DBEAFE',
-    borderColor: theme.colors.primary,
-  },
-  categoryText: {
-    fontSize: 12,
-    fontWeight: '800',
-    color: theme.colors.muted,
-  },
   favoriteToggle: {
     alignSelf: 'flex-start',
-    borderRadius: theme.radius.pill,
+    borderRadius: theme.radii.pill,
     borderWidth: 1,
     borderColor: theme.colors.border,
     backgroundColor: '#FFFFFFE6',
@@ -218,8 +194,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FCE7F3',
   },
   favoriteText: {
-    fontSize: 12,
-    fontWeight: '800',
+    ...theme.typography.small,
+    fontWeight: '600',
     color: theme.colors.muted,
   },
   favoriteTextActive: {

@@ -16,7 +16,10 @@ interface AppState {
   settings: Settings;
   lastWorkoutId: string | null;
   markHydrated: () => void;
-  completeOnboarding: (preferences: User['preferences']) => void;
+  completeOnboarding: (payload: {
+    preferences: User['preferences'];
+    selectedGoal: User['selectedGoal'];
+  }) => void;
   initializeData: () => void;
   setPremium: (value: boolean) => void;
   toggleFavorite: (exerciseId: string) => void;
@@ -39,6 +42,7 @@ const defaultSettings: Settings = {
 
 const defaultUser: User = {
   preferences: ['Mobility'],
+  selectedGoal: null,
   isPremium: false,
   favoriteExerciseIds: [],
 };
@@ -66,10 +70,10 @@ export const useAppStore = create<AppState>()(
       settings: defaultSettings,
       lastWorkoutId: null,
       markHydrated: () => set({ hydrated: true }),
-      completeOnboarding: (preferences) =>
+      completeOnboarding: ({ preferences, selectedGoal }) =>
         set((state) => ({
           onboardingCompleted: true,
-          user: { ...state.user, preferences },
+          user: { ...state.user, preferences, selectedGoal },
         })),
       initializeData: () => {
         const state = get();
@@ -268,7 +272,18 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'bend-mvp-store-v1',
+      version: 2,
       storage: createJSONStorage(() => AsyncStorage),
+      migrate: (persistedState, version) => {
+        if (version < 2) {
+          const state = persistedState as Partial<AppState>;
+          return {
+            ...state,
+            user: { ...defaultUser, ...(state.user ?? {}) },
+          } as AppState;
+        }
+        return persistedState as AppState;
+      },
       partialize: (state) => ({
         onboardingCompleted: state.onboardingCompleted,
         exercises: state.exercises,
@@ -279,6 +294,9 @@ export const useAppStore = create<AppState>()(
         lastWorkoutId: state.lastWorkoutId,
       }),
       onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.user = { ...defaultUser, ...state.user };
+        }
         state?.markHydrated();
       },
     },

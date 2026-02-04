@@ -2,27 +2,38 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { FlatList, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Card } from '../components/Card';
+import { PrimaryButton, SecondaryButton } from '../components/Buttons';
 import { FocusChips } from '../components/FocusChips';
 import { HeroCard } from '../components/HeroCard';
 import { Screen } from '../components/Screen';
 import { TemplateCard } from '../components/TemplateCard';
+import { goalById, GoalFocus } from '../data/goals';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../storage/appStore';
 import { theme } from '../theme';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
-type FocusValue = 'All' | 'Mobility' | 'Posture' | 'Stability' | 'Balance';
 
 export const HomeScreen = () => {
   const navigation = useNavigation<Nav>();
+  const { width } = useWindowDimensions();
+  const columns = width >= 1080 ? 3 : 2;
+
   const workouts = useAppStore((state) => state.workouts);
   const workoutItems = useAppStore((state) => state.workoutItems);
   const exercises = useAppStore((state) => state.exercises);
   const lastWorkoutId = useAppStore((state) => state.lastWorkoutId);
+  const selectedGoal = useAppStore((state) => state.user.selectedGoal);
 
-  const [focus, setFocus] = useState<FocusValue>('All');
+  const initialFocus: GoalFocus = selectedGoal ? goalById[selectedGoal]?.focus ?? 'All' : 'All';
+  const [focus, setFocus] = useState<GoalFocus>(initialFocus);
+
+  useEffect(() => {
+    setFocus(initialFocus);
+  }, [initialFocus]);
 
   const exerciseMap = useMemo(
     () => Object.fromEntries(exercises.map((exercise) => [exercise.id, exercise])),
@@ -62,115 +73,134 @@ export const HomeScreen = () => {
 
   const lastWorkout = workouts.find((workout) => workout.id === lastWorkoutId) ?? null;
 
+  const reorderedTemplates = useMemo(() => {
+    const preferredFocus = (selectedGoal && goalById[selectedGoal]?.focus) ?? null;
+    if (!preferredFocus) return workouts;
+
+    return [...workouts].sort((a, b) => {
+      const aMatch = metaByWorkoutId[a.id]?.categories.has(preferredFocus) ? 1 : 0;
+      const bMatch = metaByWorkoutId[b.id]?.categories.has(preferredFocus) ? 1 : 0;
+      return bMatch - aMatch;
+    });
+  }, [metaByWorkoutId, selectedGoal, workouts]);
+
   const filteredTemplates = useMemo(
     () =>
-      workouts.filter((workout) => {
+      reorderedTemplates.filter((workout) => {
         if (focus === 'All') return true;
         return metaByWorkoutId[workout.id]?.categories.has(focus);
       }),
-    [focus, metaByWorkoutId, workouts],
+    [focus, metaByWorkoutId, reorderedTemplates],
   );
 
   const startWorkoutId = lastWorkout?.id ?? workouts[0]?.id ?? null;
 
   return (
     <Screen>
-      <ScrollView
-        contentContainerStyle={styles.content}
+      <FlatList
+        data={filteredTemplates}
+        key={`${columns}_${focus}`}
+        numColumns={columns}
+        keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
-      >
-        <HeroCard
-          title="Ready to move?"
-          subtitle="Pick a flow, reset your posture, and keep your body feeling good today."
-          primaryLabel="Start a workout"
-          secondaryLabel="Build one"
-          onPrimaryPress={() => {
-            if (startWorkoutId) navigation.navigate('Player', { workoutId: startWorkoutId });
-          }}
-          onSecondaryPress={() => navigation.navigate('WorkoutBuilder')}
-        />
+        contentContainerStyle={styles.content}
+        columnWrapperStyle={columns > 1 ? styles.columnRow : undefined}
+        ListHeaderComponent={
+          <View style={styles.headerContent}>
+            <HeroCard
+              title="Ready to move?"
+              subtitle="Pick a flow, reset posture, and feel better today."
+              primaryLabel="Start a workout"
+              secondaryLabel="Build one"
+              onPrimaryPress={() => {
+                if (startWorkoutId) navigation.navigate('Player', { workoutId: startWorkoutId });
+              }}
+              onSecondaryPress={() => navigation.navigate('WorkoutBuilder')}
+            />
 
-        {lastWorkout ? (
-          <View style={styles.continueCard}>
-            <View style={styles.accentBar} />
-            <View style={styles.continueThumb}>
-              <Ionicons name="body" size={24} color={theme.colors.text} />
+            {lastWorkout ? (
+              <Card accentColor={theme.colors.primary} accentPosition="left" style={styles.continueCard}>
+                <View style={styles.continueThumb}>
+                  <Ionicons name="body" size={24} color={theme.colors.primary} />
+                </View>
+                <View style={styles.continueTextWrap}>
+                  <Text style={styles.continueLabel}>Continue workout</Text>
+                  <Text style={styles.continueTitle}>{lastWorkout.name}</Text>
+                  <Text style={styles.continueMeta}>
+                    {metaByWorkoutId[lastWorkout.id]?.firstExerciseName} • {metaByWorkoutId[lastWorkout.id]?.minutes ?? 1}{' '}
+                    min
+                  </Text>
+                </View>
+                <PrimaryButton
+                  label="Resume"
+                  onPress={() => navigation.navigate('Player', { workoutId: lastWorkout.id })}
+                  style={styles.resumeButton}
+                />
+              </Card>
+            ) : null}
+
+            <View style={styles.sectionHeader}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.sectionTitle}>Quick Start</Text>
+                <Text style={styles.sectionSubtext}>Choose a flow and start in seconds.</Text>
+              </View>
+              <SecondaryButton
+                label="+ Build workout"
+                onPress={() => navigation.navigate('WorkoutBuilder')}
+                style={styles.buildButton}
+              />
             </View>
-            <View style={styles.continueTextWrap}>
-              <Text style={styles.continueLabel}>Continue</Text>
-              <Text style={styles.continueTitle}>{lastWorkout.name}</Text>
-              <Text style={styles.continueMeta}>
-                {metaByWorkoutId[lastWorkout.id]?.firstExerciseName} - {metaByWorkoutId[lastWorkout.id]?.minutes ?? 1} min
-              </Text>
-            </View>
-            <Pressable
-              style={styles.resumeButton}
-              onPress={() => navigation.navigate('Player', { workoutId: lastWorkout.id })}
-            >
-              <Text style={styles.resumeButtonText}>Resume</Text>
+
+            <FocusChips value={focus} onChange={setFocus} />
+
+            <Pressable onPress={() => navigation.navigate('Premium')}>
+              <LinearGradient colors={theme.gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.premiumCard}>
+                <View style={styles.premiumIconWrap}>
+                  <Ionicons name="sparkles" size={18} color="#FFFFFF" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.premiumTitle}>Type any exercise → instant cartoon</Text>
+                  <Text style={styles.premiumText}>Generate custom moves with Premium.</Text>
+                </View>
+                <View style={styles.premiumCta}>
+                  <Text style={styles.premiumCtaText}>Try Premium</Text>
+                </View>
+              </LinearGradient>
             </Pressable>
           </View>
-        ) : null}
+        }
+        ListEmptyComponent={
+          <Card style={styles.emptyCard}>
+            <Text style={styles.emptyTitle}>No templates for this focus yet</Text>
+            <Text style={styles.emptyText}>Try another focus chip or build your own routine.</Text>
+            <PrimaryButton label="Build workout" onPress={() => navigation.navigate('WorkoutBuilder')} />
+          </Card>
+        }
+        renderItem={({ item }) => {
+          const categories = metaByWorkoutId[item.id]?.categories;
+          const accent =
+            categories?.has('Posture')
+              ? theme.category.Posture
+              : categories?.has('Stability')
+                ? theme.category.Stability
+                : categories?.has('Balance')
+                  ? theme.category.Balance
+                  : theme.category.Mobility;
 
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Quick Start</Text>
-          <Text style={styles.sectionSubtext}>Pick a focus and hit play</Text>
-        </View>
-
-        <FocusChips value={focus} onChange={setFocus} />
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.templatesRow}>
-          {filteredTemplates.map((workout) => {
-            const categories = metaByWorkoutId[workout.id]?.categories;
-            const accent =
-              categories?.has('Posture')
-                ? theme.category.Posture
-                : categories?.has('Stability')
-                  ? theme.category.Stability
-                  : categories?.has('Balance')
-                    ? theme.category.Balance
-                    : theme.category.Mobility;
-
-            return (
-              <TemplateCard
-                key={workout.id}
-                name={workout.name}
-                description={workout.description}
-                exerciseCount={metaByWorkoutId[workout.id]?.itemCount ?? 0}
-                minutes={metaByWorkoutId[workout.id]?.minutes ?? 1}
-                accent={accent}
-                onEdit={() => navigation.navigate('WorkoutBuilder', { workoutId: workout.id })}
-                onStart={() => navigation.navigate('Player', { workoutId: workout.id })}
-              />
-            );
-          })}
-        </ScrollView>
-
-        <Pressable style={styles.buildButton} onPress={() => navigation.navigate('WorkoutBuilder')}>
-          <Ionicons name="add-circle" size={18} color="#fff" />
-          <Text style={styles.buildButtonText}>Build workout</Text>
-        </Pressable>
-
-        <Pressable onPress={() => navigation.navigate('Premium')}>
-          <LinearGradient
-            colors={theme.gradients.premium}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.premiumCard}
-          >
-            <View style={styles.premiumIconWrap}>
-              <Ionicons name="sparkles" size={20} color="#fff" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.premiumTitle}>Type any exercise to instant cartoon</Text>
-              <Text style={styles.premiumText}>Unlock premium generation tools</Text>
-            </View>
-            <View style={styles.premiumButton}>
-              <Text style={styles.premiumButtonText}>Try Premium</Text>
-            </View>
-          </LinearGradient>
-        </Pressable>
-      </ScrollView>
+          return (
+            <TemplateCard
+              name={item.name}
+              description={item.description}
+              exerciseCount={metaByWorkoutId[item.id]?.itemCount ?? 0}
+              minutes={metaByWorkoutId[item.id]?.minutes ?? 1}
+              accent={accent}
+              onEdit={() => navigation.navigate('WorkoutBuilder', { workoutId: item.id })}
+              onStart={() => navigation.navigate('Player', { workoutId: item.id })}
+              style={styles.templateCard}
+            />
+          );
+        }}
+      />
     </Screen>
   );
 };
@@ -178,139 +208,121 @@ export const HomeScreen = () => {
 const styles = StyleSheet.create({
   content: {
     paddingTop: theme.spacing.sm,
-    paddingBottom: 120,
-    gap: theme.spacing.lg,
+    paddingBottom: 116,
+    gap: theme.spacing.md,
+  },
+  headerContent: {
+    gap: theme.spacing.md,
   },
   continueCard: {
-    backgroundColor: '#FFFFFFE6',
-    borderRadius: theme.radius.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    padding: theme.spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.spacing.md,
-    position: 'relative',
-    overflow: 'hidden',
-    ...theme.shadow.soft,
-  },
-  accentBar: {
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: 5,
-    backgroundColor: theme.category.Mobility,
+    gap: theme.spacing.sm,
+    paddingLeft: theme.spacing.lg,
   },
   continueThumb: {
-    width: 52,
-    height: 52,
-    borderRadius: 14,
-    backgroundColor: '#DBEAFE',
+    width: 48,
+    height: 48,
+    borderRadius: theme.radii.md,
+    backgroundColor: theme.colors.pastelBlue,
     alignItems: 'center',
     justifyContent: 'center',
   },
   continueTextWrap: {
     flex: 1,
-    gap: 2,
+    gap: 1,
   },
   continueLabel: {
+    ...theme.typography.micro,
     color: theme.colors.muted,
-    fontSize: 11,
-    fontWeight: '800',
     textTransform: 'uppercase',
-    letterSpacing: 0.6,
+    letterSpacing: 0.5,
   },
   continueTitle: {
+    ...theme.typography.h2,
     color: theme.colors.text,
-    fontSize: 16,
-    fontWeight: '800',
+    fontSize: 18,
   },
   continueMeta: {
+    ...theme.typography.small,
     color: theme.colors.muted,
-    fontSize: 12,
-    fontWeight: '600',
   },
   resumeButton: {
-    backgroundColor: theme.colors.primary,
-    borderRadius: theme.radius.pill,
-    paddingHorizontal: 13,
-    paddingVertical: 9,
-  },
-  resumeButtonText: {
-    color: '#fff',
-    fontWeight: '800',
-    fontSize: 12,
+    minWidth: 90,
   },
   sectionHeader: {
-    gap: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
   },
   sectionTitle: {
-    ...theme.type.h2,
+    ...theme.typography.h1,
     color: theme.colors.text,
-    fontSize: 22,
   },
   sectionSubtext: {
-    ...theme.type.body,
+    ...theme.typography.small,
     color: theme.colors.muted,
   },
-  templatesRow: {
-    gap: theme.spacing.md,
-    paddingRight: theme.spacing.sm,
-  },
   buildButton: {
-    borderRadius: theme.radius.lg,
-    backgroundColor: theme.colors.primary,
-    paddingVertical: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    gap: 8,
-    ...theme.shadow.card,
-  },
-  buildButtonText: {
-    color: '#fff',
-    fontWeight: '800',
-    fontSize: 15,
+    minWidth: 134,
   },
   premiumCard: {
-    borderRadius: 18,
-    padding: 14,
+    borderRadius: theme.radii.lg,
+    padding: theme.spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    ...theme.shadow.card,
+    gap: theme.spacing.sm,
+    ...theme.shadows.soft,
   },
   premiumIconWrap: {
-    width: 34,
-    height: 34,
+    width: 32,
+    height: 32,
     borderRadius: 999,
     backgroundColor: 'rgba(255,255,255,0.22)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   premiumTitle: {
-    color: '#fff',
-    fontWeight: '800',
-    fontSize: 13,
-    marginBottom: 2,
-  },
-  premiumText: {
-    color: '#F1F5F9',
-    fontSize: 12,
+    color: '#FFFFFF',
+    ...theme.typography.small,
     fontWeight: '600',
   },
-  premiumButton: {
-    borderRadius: theme.radius.pill,
-    backgroundColor: 'rgba(255,255,255,0.22)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.4)',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+  premiumText: {
+    color: '#EFF6FF',
+    ...theme.typography.micro,
+    fontWeight: '500',
   },
-  premiumButtonText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '800',
+  premiumCta: {
+    borderRadius: theme.radii.pill,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.34)',
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: theme.spacing.sm + 2,
+    paddingVertical: theme.spacing.xs + 2,
+  },
+  premiumCtaText: {
+    color: '#FFFFFF',
+    ...theme.typography.small,
+    fontWeight: '600',
+  },
+  columnRow: {
+    gap: theme.spacing.sm,
+  },
+  templateCard: {
+    flex: 1,
+    marginTop: theme.spacing.sm,
+  },
+  emptyCard: {
+    marginTop: theme.spacing.sm,
+    gap: theme.spacing.sm,
+    alignItems: 'flex-start',
+  },
+  emptyTitle: {
+    ...theme.typography.h2,
+    color: theme.colors.text,
+  },
+  emptyText: {
+    ...theme.typography.body,
+    color: theme.colors.muted,
   },
 });

@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Exercise } from '../types/models';
-import { theme } from '../theme';
+import { getPastelByCategory, theme } from '../theme';
 
 type Props = {
   exercise: Exercise;
@@ -11,14 +11,9 @@ type Props = {
   onToggleFavorite: () => void;
 };
 
-const cardPalette = [
-  ['#BFDBFE', '#DBEAFE'],
-  ['#FBCFE8', '#FCE7F3'],
-  ['#FDE68A', '#FEF3C7'],
-] as const;
-
-const ExerciseThumb = ({ name, id }: { name: string; id: string }) => {
-  const gradient = cardPalette[id.charCodeAt(id.length - 1) % cardPalette.length];
+const ExerciseThumb = ({ name, category }: { name: string; category: Exercise['category'] }) => {
+  const pastel = getPastelByCategory(category);
+  const gradient = [pastel, '#FFFFFF'] as const;
   const initials = name
     .split(' ')
     .slice(0, 2)
@@ -42,7 +37,7 @@ export const ExerciseCard = ({ exercise, isFavorite, onPress, onToggleFavorite }
     onPress={onPress}
   >
     <View style={[styles.accentBar, { backgroundColor: theme.category[exercise.category] }]} />
-    <ExerciseThumb name={exercise.name} id={exercise.id} />
+    <ExerciseThumb name={exercise.name} category={exercise.category} />
     <Pressable onPress={onToggleFavorite} hitSlop={8} style={styles.favoriteButton}>
       <Ionicons
         name={isFavorite ? 'heart' : 'heart-outline'}
@@ -70,13 +65,13 @@ export const ExerciseCard = ({ exercise, isFavorite, onPress, onToggleFavorite }
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    backgroundColor: theme.colors.card,
-    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.radii.lg,
     borderWidth: 1,
     borderColor: theme.colors.border,
     padding: theme.spacing.md,
     gap: theme.spacing.sm,
-    ...theme.shadow.card,
+    ...theme.shadows.card,
     overflow: 'hidden',
   },
   cardPressed: {
@@ -91,7 +86,7 @@ const styles = StyleSheet.create({
   },
   thumb: {
     height: 102,
-    borderRadius: theme.radius.md,
+    borderRadius: theme.radii.md,
     overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
@@ -139,16 +134,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.64)',
     borderWidth: 1,
     borderColor: '#FFFFFF8A',
-    borderRadius: theme.radius.pill,
+    borderRadius: theme.radii.pill,
     padding: 5,
   },
   title: {
-    ...theme.type.title,
+    ...theme.typography.small,
+    fontWeight: '600',
     color: theme.colors.text,
-    minHeight: 34,
+    minHeight: 36,
   },
   duration: {
-    ...theme.type.caption,
+    ...theme.typography.small,
     color: theme.colors.primary,
   },
   tagRow: {
@@ -157,15 +153,14 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   tagChip: {
-    backgroundColor: '#EEF2FF',
-    borderRadius: theme.radius.pill,
+    backgroundColor: theme.colors.pastelBlue,
+    borderRadius: theme.radii.pill,
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
   tagText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#4F46E5',
+    ...theme.typography.micro,
+    color: theme.colors.primary,
     textTransform: 'capitalize',
   },
 });

@@ -7,7 +7,7 @@ import { RootNavigator } from './src/navigation/RootNavigator';
 import { configureAudio } from './src/services/cueService';
 import { configureRevenueCat } from './src/services/purchaseService';
 import { useAppStore } from './src/storage/appStore';
-import { colors } from './src/utils/theme';
+import { theme } from './src/theme';
 
 export default function App() {
   const hydrated = useAppStore((state) => state.hydrated);
@@ -27,7 +27,7 @@ export default function App() {
   if (!hydrated) {
     return (
       <SafeAreaView style={styles.loaderWrap}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        <ActivityIndicator size="large" color={theme.colors.primary} />
       </SafeAreaView>
     );
   }
@@ -45,6 +45,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.bg,
+    backgroundColor: theme.colors.background,
   },
 });

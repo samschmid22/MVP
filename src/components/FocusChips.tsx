@@ -1,4 +1,5 @@
-import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
+import { PillChip } from './PillChip';
 import { theme } from '../theme';
 
 type FocusValue = 'All' | 'Mobility' | 'Posture' | 'Stability' | 'Balance';
@@ -24,16 +25,13 @@ export const FocusChips = ({ value, onChange }: FocusChipsProps) => (
       const active = option === value;
       const accent = getAccent(option);
       return (
-        <Pressable
+        <PillChip
           key={option}
+          label={option}
+          active={active}
+          accent={accent}
           onPress={() => onChange(option)}
-          style={[
-            styles.chip,
-            active && { borderColor: accent, backgroundColor: `${accent}1A` },
-          ]}
-        >
-          <Text style={[styles.label, active && { color: accent }]}>{option}</Text>
-        </Pressable>
+        />
       );
     })}
   </ScrollView>
@@ -43,18 +41,5 @@ const styles = StyleSheet.create({
   row: {
     gap: theme.spacing.sm,
     paddingRight: theme.spacing.sm,
-  },
-  chip: {
-    borderRadius: theme.radius.pill,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: '#FFFFFFE8',
-    paddingHorizontal: 14,
-    paddingVertical: 9,
-  },
-  label: {
-    color: theme.colors.muted,
-    fontSize: 12,
-    fontWeight: '800',
   },
 });

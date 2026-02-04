@@ -1,5 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Card } from '../components/Card';
+import { PrimaryButton } from '../components/Buttons';
 import { Screen } from '../components/Screen';
 import { useAppStore } from '../storage/appStore';
 import { theme } from '../theme';
@@ -13,27 +15,24 @@ export const SettingsScreen = () => {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <View>
+        <View style={styles.header}>
           <Text style={styles.heading}>Settings</Text>
-          <Text style={styles.subheading}>Tune your cues, units, and app preferences</Text>
+          <Text style={styles.subheading}>Tune cues, units, and premium debug options.</Text>
         </View>
 
-        <View style={styles.card}>
-          <View style={styles.cardAccent} />
+        <Card accentColor={theme.category.Mobility}>
           <View style={styles.cardHeader}>
-            <Ionicons name="shield-checkmark" size={17} color={theme.category.Mobility} />
+            <Ionicons name="shield-checkmark-outline" size={18} color={theme.category.Mobility} />
             <Text style={styles.cardTitle}>Safety</Text>
           </View>
           <Text style={styles.cardText}>Not medical advice. Stop if pain. Consult a professional.</Text>
-        </View>
+        </Card>
 
-        <View style={styles.card}>
-          <View style={[styles.cardAccent, { backgroundColor: theme.category.Posture }]} />
+        <Card accentColor={theme.category.Posture}>
           <View style={styles.cardHeader}>
-            <Ionicons name="volume-high" size={17} color={theme.category.Posture} />
+            <Ionicons name="volume-high-outline" size={18} color={theme.category.Posture} />
             <Text style={styles.cardTitle}>Session cues</Text>
           </View>
-
           <View style={styles.row}>
             <Text style={styles.rowLabel}>Sound cues</Text>
             <Switch
@@ -41,7 +40,6 @@ export const SettingsScreen = () => {
               onValueChange={(value) => updateSettings({ soundEnabled: value })}
             />
           </View>
-
           <View style={styles.row}>
             <Text style={styles.rowLabel}>Vibration cues</Text>
             <Switch
@@ -49,15 +47,13 @@ export const SettingsScreen = () => {
               onValueChange={(value) => updateSettings({ vibrationEnabled: value })}
             />
           </View>
-        </View>
+        </Card>
 
-        <View style={styles.card}>
-          <View style={[styles.cardAccent, { backgroundColor: theme.category.Stability }]} />
+        <Card accentColor={theme.category.Stability}>
           <View style={styles.cardHeader}>
-            <Ionicons name="resize" size={17} color={theme.category.Stability} />
+            <Ionicons name="resize-outline" size={18} color={theme.category.Stability} />
             <Text style={styles.cardTitle}>Units</Text>
           </View>
-
           <View style={styles.segmentedRow}>
             <Pressable
               style={[styles.segmentBtn, settings.units === 'metric' && styles.segmentBtnActive]}
@@ -78,19 +74,19 @@ export const SettingsScreen = () => {
               </Text>
             </Pressable>
           </View>
-        </View>
+        </Card>
 
-        <View style={styles.card}>
-          <View style={[styles.cardAccent, { backgroundColor: theme.category.Balance }]} />
+        <Card accentColor={theme.category.Balance}>
           <View style={styles.cardHeader}>
-            <Ionicons name="sparkles" size={17} color={theme.category.Balance} />
+            <Ionicons name="sparkles-outline" size={18} color={theme.category.Balance} />
             <Text style={styles.cardTitle}>Premium debug</Text>
           </View>
           <Text style={styles.cardText}>Use this for MVP testing without store keys.</Text>
-          <Pressable style={styles.mockButton} onPress={() => setPremium(!isPremium)}>
-            <Text style={styles.mockButtonText}>{isPremium ? 'Disable Premium' : 'Enable Premium'}</Text>
-          </Pressable>
-        </View>
+          <PrimaryButton
+            label={isPremium ? 'Disable Premium' : 'Enable Premium'}
+            onPress={() => setPremium(!isPremium)}
+          />
+        </Card>
       </ScrollView>
     </Screen>
   );
@@ -99,101 +95,72 @@ export const SettingsScreen = () => {
 const styles = StyleSheet.create({
   content: {
     paddingTop: theme.spacing.sm,
-    paddingBottom: 120,
+    paddingBottom: 116,
     gap: theme.spacing.md,
   },
+  header: {
+    gap: theme.spacing.xs,
+  },
   heading: {
-    ...theme.type.h1,
+    ...theme.typography.h1,
     color: theme.colors.text,
   },
   subheading: {
-    marginTop: 2,
-    ...theme.type.body,
+    ...theme.typography.body,
     color: theme.colors.muted,
-  },
-  card: {
-    backgroundColor: '#FFFFFFE8',
-    borderRadius: theme.radius.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    padding: theme.spacing.md,
-    gap: 10,
-    position: 'relative',
-    overflow: 'hidden',
-    ...theme.shadow.soft,
-  },
-  cardAccent: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 4,
-    backgroundColor: theme.category.Mobility,
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: theme.spacing.xs,
   },
   cardTitle: {
-    ...theme.type.subtitle,
+    ...theme.typography.h2,
+    fontSize: 18,
     color: theme.colors.text,
   },
   cardText: {
-    ...theme.type.body,
+    ...theme.typography.body,
     color: theme.colors.muted,
-    lineHeight: 20,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: theme.radii.md,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    paddingHorizontal: 12,
-    paddingVertical: 9,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
   },
   rowLabel: {
+    ...theme.typography.body,
     color: theme.colors.text,
-    fontWeight: '700',
-    fontSize: 14,
+    fontWeight: '500',
   },
   segmentedRow: {
     flexDirection: 'row',
-    borderRadius: 12,
+    borderRadius: theme.radii.md,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: theme.colors.border,
   },
   segmentBtn: {
     flex: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    backgroundColor: '#fff',
+    paddingVertical: theme.spacing.sm,
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
   },
   segmentBtnActive: {
-    backgroundColor: '#DBEAFE',
+    backgroundColor: theme.colors.pastelBlue,
   },
   segmentBtnText: {
+    ...theme.typography.small,
     color: theme.colors.muted,
-    fontWeight: '700',
-    fontSize: 13,
   },
   segmentBtnTextActive: {
     color: theme.colors.primary,
-  },
-  mockButton: {
-    borderRadius: 12,
-    backgroundColor: '#111827',
-    paddingVertical: 11,
-    alignItems: 'center',
-  },
-  mockButtonText: {
-    color: '#fff',
-    fontWeight: '800',
-    fontSize: 13,
+    fontWeight: '600',
   },
 });

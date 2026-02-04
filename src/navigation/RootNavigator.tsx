@@ -26,7 +26,7 @@ const TabBarButton = ({ accessibilityState, children, onPress, onLongPress }: Bo
     <Pressable onPress={onPress} onLongPress={onLongPress} style={styles.tabButtonWrap}>
       {selected ? (
         <LinearGradient
-          colors={theme.gradients.premium}
+          colors={theme.gradients.brand}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.activePill}
@@ -47,21 +47,25 @@ const MainTabs = () => (
       tabBarActiveTintColor: '#FFFFFF',
       tabBarInactiveTintColor: theme.colors.muted,
       tabBarButton: (props) => <TabBarButton {...props} />,
-      tabBarLabelStyle: { fontSize: 11, fontWeight: '800', marginBottom: 1 },
-      tabBarItemStyle: { marginHorizontal: 4, marginVertical: 8 },
+      tabBarLabelStyle: {
+        ...theme.typography.micro,
+        marginBottom: 1,
+        fontWeight: '600',
+      },
+      tabBarItemStyle: { marginHorizontal: 4, marginVertical: 6 },
       tabBarStyle: {
         position: 'absolute',
-        left: 10,
-        right: 10,
+        left: 12,
+        right: 12,
         bottom: 10,
-        borderRadius: 24,
-        height: 82,
-        paddingBottom: 10,
-        paddingTop: 4,
-        backgroundColor: 'rgba(232,238,250,0.92)',
+        borderRadius: 22,
+        height: 74,
+        paddingBottom: 8,
+        paddingTop: 6,
+        backgroundColor: theme.colors.tabBar,
         borderTopWidth: 1,
-        borderTopColor: '#CBD5E1',
-        ...theme.shadow.tabBar,
+        borderTopColor: theme.colors.border,
+        ...theme.shadows.tabBar,
       },
     }}
   >
@@ -71,8 +75,8 @@ const MainTabs = () => (
       options={{
         tabBarLabel: 'Home',
         tabBarIcon: ({ color, focused }) => (
-          <View style={{ transform: [{ scale: focused ? 1.1 : 1 }] }}>
-            <Ionicons name={focused ? 'home' : 'home-outline'} size={27} color={focused ? '#fff' : color} />
+          <View style={{ transform: [{ scale: focused ? 1.05 : 1 }] }}>
+            <Ionicons name={focused ? 'home' : 'home-outline'} size={25} color={focused ? '#fff' : color} />
           </View>
         ),
       }}
@@ -83,8 +87,8 @@ const MainTabs = () => (
       options={{
         tabBarLabel: 'Library',
         tabBarIcon: ({ color, focused }) => (
-          <View style={{ transform: [{ scale: focused ? 1.1 : 1 }] }}>
-            <Ionicons name={focused ? 'grid' : 'grid-outline'} size={27} color={focused ? '#fff' : color} />
+          <View style={{ transform: [{ scale: focused ? 1.05 : 1 }] }}>
+            <Ionicons name={focused ? 'grid' : 'grid-outline'} size={25} color={focused ? '#fff' : color} />
           </View>
         ),
       }}
@@ -95,10 +99,10 @@ const MainTabs = () => (
       options={{
         tabBarLabel: 'Settings',
         tabBarIcon: ({ color, focused }) => (
-          <View style={{ transform: [{ scale: focused ? 1.1 : 1 }] }}>
+          <View style={{ transform: [{ scale: focused ? 1.05 : 1 }] }}>
             <Ionicons
               name={focused ? 'settings' : 'settings-outline'}
-              size={27}
+              size={25}
               color={focused ? '#fff' : color}
             />
           </View>
@@ -145,20 +149,20 @@ export const RootNavigator = () => {
 const styles = StyleSheet.create({
   tabButtonWrap: {
     flex: 1,
-    marginVertical: 5,
+    marginVertical: 2,
     justifyContent: 'center',
     alignItems: 'center',
   },
   activePill: {
     width: '100%',
-    borderRadius: 16,
-    paddingTop: 6,
-    paddingBottom: 2,
+    borderRadius: 14,
+    paddingTop: 4,
+    paddingBottom: 1,
   },
   inactivePill: {
     width: '100%',
-    borderRadius: 16,
-    paddingTop: 6,
-    paddingBottom: 2,
+    borderRadius: 14,
+    paddingTop: 4,
+    paddingBottom: 1,
   },
 });
