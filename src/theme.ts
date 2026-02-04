@@ -1,0 +1,51 @@
+export const theme = {
+  colors: {
+    background: '#F6F7FB',
+    card: '#FFFFFF',
+    text: '#0F172A',
+    muted: '#64748B',
+    border: '#DCE3F1',
+    primary: '#3B82F6',
+    accentPink: '#EC4899',
+    accentYellow: '#FBBF24',
+    tabBar: '#E8EEFA',
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 20,
+    xxl: 24,
+  },
+  radius: {
+    sm: 10,
+    md: 14,
+    lg: 18,
+    xl: 20,
+    pill: 999,
+  },
+  shadow: {
+    card: {
+      shadowColor: '#0F172A',
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 0.08,
+      shadowRadius: 14,
+      elevation: 3,
+    },
+    tabBar: {
+      shadowColor: '#0F172A',
+      shadowOffset: { width: 0, height: -2 },
+      shadowOpacity: 0.08,
+      shadowRadius: 12,
+      elevation: 16,
+    },
+  },
+  type: {
+    h1: { fontSize: 30, fontWeight: '800' as const },
+    h2: { fontSize: 24, fontWeight: '800' as const },
+    title: { fontSize: 16, fontWeight: '700' as const },
+    body: { fontSize: 14, fontWeight: '500' as const },
+    caption: { fontSize: 12, fontWeight: '600' as const },
+  },
+};

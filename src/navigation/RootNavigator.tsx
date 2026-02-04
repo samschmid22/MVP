@@ -1,7 +1,8 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Text } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { View } from 'react-native';
 import { HomeScreen } from '../screens/HomeScreen';
 import { LibraryScreen } from '../screens/LibraryScreen';
 import { OnboardingScreen } from '../screens/OnboardingScreen';
@@ -11,6 +12,7 @@ import { PremiumScreen } from '../screens/PremiumScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { WorkoutBuilderScreen } from '../screens/WorkoutBuilderScreen';
 import { useAppStore } from '../storage/appStore';
+import { theme } from '../theme';
 import { MainTabParamList, RootStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -20,24 +22,62 @@ const MainTabs = () => (
   <Tabs.Navigator
     screenOptions={{
       headerShown: false,
-      tabBarActiveTintColor: '#0f766e',
-      tabBarStyle: { height: 64, paddingBottom: 8, paddingTop: 8 },
+      tabBarActiveTintColor: theme.colors.primary,
+      tabBarInactiveTintColor: theme.colors.muted,
+      tabBarLabelStyle: { fontSize: 12, fontWeight: '700', marginBottom: 2 },
+      tabBarItemStyle: {
+        marginHorizontal: 6,
+        marginTop: 8,
+        marginBottom: 8,
+        borderRadius: theme.radius.pill,
+      },
+      tabBarActiveBackgroundColor: '#FFFFFF',
+      tabBarStyle: {
+        height: 76,
+        paddingBottom: 10,
+        paddingTop: 4,
+        backgroundColor: theme.colors.tabBar,
+        borderTopWidth: 1,
+        borderTopColor: '#CBD5E1',
+        ...theme.shadow.tabBar,
+      },
     }}
   >
     <Tabs.Screen
       name="Home"
       component={HomeScreen}
-      options={{ tabBarIcon: ({ color }) => <Text style={{ color }}>H</Text> }}
+      options={{
+        tabBarLabel: 'Home',
+        tabBarIcon: ({ color, focused }) => (
+          <View style={{ transform: [{ scale: focused ? 1.06 : 1 }] }}>
+            <Ionicons name={focused ? 'home' : 'home-outline'} size={26} color={color} />
+          </View>
+        ),
+      }}
     />
     <Tabs.Screen
       name="Library"
       component={LibraryScreen}
-      options={{ tabBarIcon: ({ color }) => <Text style={{ color }}>L</Text> }}
+      options={{
+        tabBarLabel: 'Library',
+        tabBarIcon: ({ color, focused }) => (
+          <View style={{ transform: [{ scale: focused ? 1.06 : 1 }] }}>
+            <Ionicons name={focused ? 'grid' : 'grid-outline'} size={26} color={color} />
+          </View>
+        ),
+      }}
     />
     <Tabs.Screen
       name="Settings"
       component={SettingsScreen}
-      options={{ tabBarIcon: ({ color }) => <Text style={{ color }}>S</Text> }}
+      options={{
+        tabBarLabel: 'Settings',
+        tabBarIcon: ({ color, focused }) => (
+          <View style={{ transform: [{ scale: focused ? 1.06 : 1 }] }}>
+            <Ionicons name={focused ? 'settings' : 'settings-outline'} size={26} color={color} />
+          </View>
+        ),
+      }}
     />
   </Tabs.Navigator>
 );
