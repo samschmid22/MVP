@@ -4,8 +4,9 @@ import { Alert, FlatList, Modal, Pressable, StyleSheet, TextInput, View, useWind
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppStore } from '../storage/appStore';
 import { Exercise, ExerciseCategory } from '../types/models';
-import { AppText, Button, Card, Chip, Screen, SectionHeader, getFloatingTabBarPadding } from '../ui/components';
-import { brandByCategory, uiTheme } from '../ui/theme';
+import { getAnimationKeyForExercise } from '../config/exerciseAnimationMap';
+import { AppText, Button, Card, Chip, ExerciseAnimation, Screen, SectionHeader, getFloatingTabBarPadding } from '../ui/components';
+import { uiTheme } from '../ui/theme';
 
 const categories: Array<'All' | ExerciseCategory> = [
   'All',
@@ -98,7 +99,7 @@ export const LibraryScreen = () => {
           </Card>
         }
         renderItem={({ item }) => {
-          const accent = brandByCategory[item.category];
+          const animationKey = getAnimationKeyForExercise(item);
           const isFavorite = favoriteExerciseIds.includes(item.id);
           return (
             <Pressable
@@ -107,9 +108,7 @@ export const LibraryScreen = () => {
             >
               <Card style={styles.exerciseCard}>
                 <View style={styles.cardHeader}>
-                  <View style={[styles.cardThumb, { backgroundColor: `${accent}20` }]}>
-                    <Ionicons name="accessibility-outline" size={20} color={accent} />
-                  </View>
+                  <ExerciseAnimation animationKey={animationKey} size="card" />
                   <Pressable
                     onPress={(event) => {
                       event.stopPropagation();
@@ -228,13 +227,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  cardThumb: {
-    width: 44,
-    height: 44,
-    borderRadius: uiTheme.radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   heartButton: {
     width: 32,

@@ -1,6 +1,4 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Video, ResizeMode } from 'expo-av';
-import LottieView from 'lottie-react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   AppState,
@@ -11,10 +9,11 @@ import {
   Text,
   View,
 } from 'react-native';
+import { ExerciseAnimation } from '../ui/components';
+import { getAnimationKeyForExercise } from '../config/exerciseAnimationMap';
 import { playCue } from '../services/cueService';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore, useWorkoutItems } from '../storage/appStore';
-import { colors } from '../utils/theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Player'>;
 
@@ -164,6 +163,8 @@ export const PlayerScreen = ({ route, navigation }: Props) => {
   const currentExercise = current.exercise;
   const progress = segmentTotal === 0 ? 0 : (segmentTotal - remaining) / segmentTotal;
 
+  const animationKey = currentExercise ? getAnimationKeyForExercise(currentExercise) : 'mobility';
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -172,17 +173,7 @@ export const PlayerScreen = ({ route, navigation }: Props) => {
       </View>
 
       <View style={styles.mediaWrap}>
-        {currentExercise.mediaType === 'lottie' ? (
-          <LottieView source={{ uri: currentExercise.mediaUrl }} autoPlay loop style={styles.media} />
-        ) : (
-          <Video
-            source={{ uri: currentExercise.mediaUrl }}
-            resizeMode={ResizeMode.COVER}
-            shouldPlay
-            isLooping
-            style={styles.media}
-          />
-        )}
+        <ExerciseAnimation animationKey={animationKey} size="player" />
         <View style={styles.overlay}>
           <Text style={styles.exerciseName}>{currentExercise.name}</Text>
         </View>
@@ -256,9 +247,10 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     overflow: 'hidden',
     height: 300,
-    backgroundColor: '#0f172a',
+    backgroundColor: '#EEF0F6',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  media: { width: '100%', height: '100%' },
   overlay: {
     position: 'absolute',
     left: 0,
