@@ -47,6 +47,22 @@ export const LibraryScreen = () => {
     [category, exercises, favoriteExerciseIds, favoritesOnly, search],
   );
 
+  const getCardTint = (exerciseCategory: ExerciseCategory) => {
+    switch (exerciseCategory) {
+      case 'Mobility':
+      case 'Balance':
+        return uiTheme.colors.tintBlue;
+      case 'Stability':
+      case 'Warmup':
+        return uiTheme.colors.tintPurple;
+      case 'Posture':
+      case 'Cooldown':
+        return uiTheme.colors.tintPink;
+      default:
+        return uiTheme.colors.card;
+    }
+  };
+
   return (
     <Screen>
       <FlatList
@@ -100,13 +116,14 @@ export const LibraryScreen = () => {
         }
         renderItem={({ item }) => {
           const animationKey = getAnimationKeyForExercise(item);
+          const cardTint = getCardTint(item.category);
           const isFavorite = favoriteExerciseIds.includes(item.id);
           return (
             <Pressable
               style={({ pressed }) => [styles.exerciseCardPressable, pressed && styles.exerciseCardPressed]}
               onPress={() => setSelectedExercise(item)}
             >
-              <Card style={styles.exerciseCard}>
+              <Card style={[styles.exerciseCard, { backgroundColor: cardTint }]}>
                 <View style={styles.cardHeader}>
                   <ExerciseAnimation animationKey={animationKey} size="card" />
                   <Pressable
