@@ -3,7 +3,7 @@ export const uiTheme = {
     brandBlue: '#3B82F6',
     brandPurple: '#8B5CF6',
     brandPink: '#EC4899',
-    bg: '#F6F7FB',
+    bg: '#F5F6FA',
     surface: '#FFFFFF',
     surfaceAlt: '#EEF0F6',
     section: '#EEF0F6',

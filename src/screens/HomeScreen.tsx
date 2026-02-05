@@ -3,12 +3,12 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, FlatList, Modal, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Alert, Modal, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GoalFocus, goalById } from '../data/goals';
 import { RootStackParamList } from '../navigation/types';
 import { useAppStore } from '../storage/appStore';
-import { AppText, Button, Card, Chip, Screen, SectionHeader, getFloatingTabBarPadding } from '../ui/components';
+import { AppText, Button, Card, Chip, PageContainer, Screen, getFloatingTabBarPadding } from '../ui/components';
 import { brandByCategory, uiTheme } from '../ui/theme';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -24,7 +24,8 @@ export const HomeScreen = () => {
   const navigation = useNavigation<Nav>();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const columns = width >= 980 ? 3 : 2;
+  const isWide = width >= 900;
+  const isTemplateGridWide = width >= 768;
 
   const workouts = useAppStore((state) => state.workouts);
   const workoutItems = useAppStore((state) => state.workoutItems);
@@ -105,86 +106,129 @@ export const HomeScreen = () => {
     Alert.alert('Coming soon', 'Create a routine first, then you can start it here.');
   };
 
-  const renderHeader = (
-    <View style={styles.headerContent}>
-      <Card style={[styles.hero, styles.sectionSurface]}>
-        <View style={styles.heroTop}>
-          <View style={styles.heroText}>
-            <AppText variant="h1">Start a session</AppText>
-            <AppText variant="body" style={styles.mutedText}>
-              Choose a routine or build one.
-            </AppText>
+  return (
+    <Screen padded={false}>
+      <PageContainer>
+        <View style={[styles.pageStack, { paddingBottom: getFloatingTabBarPadding(insets.bottom) }]}>
+          <View style={styles.headerRow}>
+            <View style={styles.headerText}>
+              <AppText variant="h1">Start a session</AppText>
+              <AppText variant="body" style={styles.subtitle} numberOfLines={1}>
+                Choose a routine or build one.
+              </AppText>
+            </View>
+            <LinearGradient colors={uiTheme.gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.heroBadge}>
+              <Ionicons name="sparkles-outline" size={18} color={uiTheme.colors.white} />
+            </LinearGradient>
           </View>
-          <LinearGradient colors={uiTheme.gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.heroBadge}>
-            <Ionicons name="sparkles-outline" size={18} color={uiTheme.colors.white} />
-          </LinearGradient>
+
+          <View style={styles.ctaRow}>
+            <Button label="Start session" variant="primary" onPress={handleStartWorkout} />
+            <Button label="Build workout" variant="outline" onPress={() => navigation.navigate('WorkoutBuilder')} />
+          </View>
+
+          <View style={[styles.gridRow, isWide && styles.gridRowWide]}>
+            <Card style={styles.sectionSurface}>
+              <View style={styles.cardHeaderRow}>
+                <AppText variant="h3">Current session</AppText>
+                <AppText variant="caption" style={styles.upperMuted}>
+                  {lastWorkout ? 'In progress' : 'Not started'}
+                </AppText>
+              </View>
+              {lastWorkout ? (
+                <View style={styles.currentDetail}>
+                  <AppText variant="body">{lastWorkout.name}</AppText>
+                  <AppText variant="caption" style={styles.mutedText} numberOfLines={1}>
+                    {metaByWorkoutId[lastWorkout.id]?.firstExerciseName} • {metaByWorkoutId[lastWorkout.id]?.minutes ?? 1} min
+                  </AppText>
+                </View>
+              ) : (
+                <AppText variant="caption" style={styles.mutedText}>
+                  No session in progress.
+                </AppText>
+              )}
+              <Button
+                label={lastWorkout ? 'Resume session' : 'Start session'}
+                variant="secondary"
+                onPress={() =>
+                  lastWorkout
+                    ? navigation.navigate('Player', { workoutId: lastWorkout.id })
+                    : handleStartWorkout()
+                }
+              />
+            </Card>
+
+            <Card style={styles.sectionSurface}>
+              <View style={styles.quickHeader}>
+                <AppText variant="h3">Quick start</AppText>
+                <AppText variant="caption" style={styles.mutedText} numberOfLines={1}>
+                  Pick a focus and choose a template.
+                </AppText>
+              </View>
+
+              <View style={styles.chipsRow}>
+                {(['All', 'Mobility', 'Posture', 'Stability', 'Balance'] as GoalFocus[]).map((item) => (
+                  <Chip key={item} label={item} selected={focus === item} onPress={() => setFocus(item)} />
+                ))}
+              </View>
+
+              <Pressable onPress={() => setPremiumModalVisible(true)} style={styles.premiumBanner}>
+                <Ionicons name="sparkles-outline" size={16} color={uiTheme.colors.brandPurple} />
+                <AppText variant="caption" style={styles.premiumText}>
+                  Generate an exercise cue card (Premium)
+                </AppText>
+              </Pressable>
+
+              <View style={styles.templateGrid}>
+                {filteredTemplates.length === 0 ? (
+                  <AppText variant="caption" style={styles.mutedText}>
+                    No routines for this filter.
+                  </AppText>
+                ) : (
+                  filteredTemplates.map((item) => {
+                    const categories = metaByWorkoutId[item.id]?.categories;
+                    const category =
+                      categories?.has('Posture')
+                        ? 'Posture'
+                        : categories?.has('Stability')
+                          ? 'Stability'
+                          : categories?.has('Balance')
+                            ? 'Balance'
+                            : 'Mobility';
+                    const accent = brandByCategory[category];
+
+                    return (
+                      <Pressable
+                        key={item.id}
+                        onPress={() => navigation.navigate('Player', { workoutId: item.id })}
+                        style={({ pressed }) => [
+                          { width: isTemplateGridWide ? '48%' : '100%' },
+                          pressed && styles.templateTilePressed,
+                        ]}
+                      >
+                        <Card style={styles.templateTile}>
+                          <View style={[styles.templateIcon, { backgroundColor: `${accent}20` }]}>
+                            <Ionicons name="body-outline" size={16} color={accent} />
+                          </View>
+                          <View style={styles.templateText}>
+                            <AppText variant="body" numberOfLines={1}>
+                              {item.name}
+                            </AppText>
+                            <AppText variant="caption" style={styles.mutedText} numberOfLines={1}>
+                              {metaByWorkoutId[item.id]?.itemCount ?? 0} exercises • {metaByWorkoutId[item.id]?.minutes ?? 1} min
+                            </AppText>
+                          </View>
+                        </Card>
+                      </Pressable>
+                    );
+                  })
+                )}
+              </View>
+            </Card>
+          </View>
         </View>
-        <Button label="Start a workout" variant="primary" onPress={handleStartWorkout} style={styles.fullWidthButton} />
-      </Card>
+      </PageContainer>
 
-      {lastWorkout ? (
-        <Card style={styles.sectionSurface}>
-          <View style={styles.continueRow}>
-            <View style={styles.iconTile}>
-              <Ionicons name="body-outline" size={22} color={uiTheme.colors.brandPurple} />
-            </View>
-            <View style={styles.flexBlock}>
-              <AppText variant="caption" style={styles.upperMuted}>
-                Continue
-              </AppText>
-              <AppText variant="h3">{lastWorkout.name}</AppText>
-              <AppText variant="caption" style={styles.mutedText}>
-                {metaByWorkoutId[lastWorkout.id]?.firstExerciseName} • {metaByWorkoutId[lastWorkout.id]?.minutes ?? 1} min
-              </AppText>
-            </View>
-            <Button
-              label="Resume"
-              variant="primary"
-              onPress={() => navigation.navigate('Player', { workoutId: lastWorkout.id })}
-              style={styles.resumeButton}
-            />
-          </View>
-        </Card>
-      ) : (
-        <Card style={styles.sectionSurface}>
-          <View style={styles.nowContent}>
-            <AppText variant="h3">No session in progress</AppText>
-            <AppText variant="caption" style={styles.mutedText}>
-              Start a workout from the hero or build a routine from Quick Start.
-            </AppText>
-          </View>
-        </Card>
-      )}
-
-      <SectionHeader
-        title="Quick Start"
-        subtitle="Pick a template and begin in seconds."
-        actionLabel="Build workout"
-        actionVariant="primary"
-        onActionPress={() => navigation.navigate('WorkoutBuilder')}
-      />
-
-      <View style={styles.chipsRow}>
-        {(['All', 'Mobility', 'Posture', 'Stability', 'Balance'] as GoalFocus[]).map((item) => (
-          <Chip key={item} label={item} selected={focus === item} onPress={() => setFocus(item)} />
-        ))}
-      </View>
-
-      <Pressable onPress={() => setPremiumModalVisible(true)}>
-        <Card style={[styles.premiumCard, styles.sectionSurface]}>
-          <LinearGradient colors={uiTheme.gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.premiumIcon}>
-            <Ionicons name="sparkles-outline" size={18} color={uiTheme.colors.white} />
-          </LinearGradient>
-          <View style={styles.flexBlock}>
-            <AppText variant="body" style={styles.premiumTitle}>
-              Generate an exercise cue card (Premium)
-            </AppText>
-            <AppText variant="caption" style={styles.mutedText}>
-              Create custom guided cards from any exercise name.
-            </AppText>
-          </View>
-        </Card>
-      </Pressable>
       <Modal
         animationType="fade"
         transparent
@@ -212,90 +256,30 @@ export const HomeScreen = () => {
           </Card>
         </View>
       </Modal>
-    </View>
-  );
-
-  return (
-    <Screen>
-      <FlatList
-        data={filteredTemplates}
-        key={`${columns}_${focus}`}
-        numColumns={columns}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-        columnWrapperStyle={columns > 1 ? styles.columnRow : undefined}
-        contentContainerStyle={[styles.content, { paddingBottom: getFloatingTabBarPadding(insets.bottom) + uiTheme.spacing.lg }]}
-        ListHeaderComponent={renderHeader}
-        ListEmptyComponent={
-          <Card>
-            <AppText variant="h3">No routines for this filter</AppText>
-            <AppText variant="caption" style={styles.mutedText}>
-              Try another chip or build your own workout.
-            </AppText>
-          </Card>
-        }
-        renderItem={({ item }) => {
-          const categories = metaByWorkoutId[item.id]?.categories;
-          const category =
-            categories?.has('Posture')
-              ? 'Posture'
-              : categories?.has('Stability')
-                ? 'Stability'
-                : categories?.has('Balance')
-                  ? 'Balance'
-                  : 'Mobility';
-          const accent = brandByCategory[category];
-
-          return (
-            <Card style={styles.templateCard}>
-              <View style={styles.templateTop}>
-                <View style={[styles.templateIcon, { backgroundColor: `${accent}20` }]}>
-                  <Ionicons name="body-outline" size={16} color={accent} />
-                </View>
-                <Pressable onPress={() => navigation.navigate('WorkoutBuilder', { workoutId: item.id })} hitSlop={8}>
-                  <Ionicons name="pencil-outline" size={16} color={uiTheme.colors.muted} />
-                </Pressable>
-              </View>
-              <AppText variant="h3" numberOfLines={1}>
-                {item.name}
-              </AppText>
-              <AppText variant="caption" style={styles.mutedText} numberOfLines={2}>
-                {item.description || 'Structured mobility and posture work.'}
-              </AppText>
-              <AppText variant="caption" style={styles.metaText}>
-                {metaByWorkoutId[item.id]?.itemCount ?? 0} exercises • {metaByWorkoutId[item.id]?.minutes ?? 1} min
-              </AppText>
-              <Button label="Start" variant="primary" onPress={() => navigation.navigate('Player', { workoutId: item.id })} />
-            </Card>
-          );
-        }}
-      />
     </Screen>
   );
 };
 
 const styles = StyleSheet.create({
-  content: {
-    paddingTop: uiTheme.spacing.md,
-    gap: uiTheme.spacing.lg,
-  },
-  headerContent: {
-    gap: uiTheme.spacing.lg,
-  },
-  hero: {
-    gap: uiTheme.spacing.lg,
+  pageStack: {
+    gap: uiTheme.spacing.xl,
   },
   sectionSurface: {
     backgroundColor: uiTheme.colors.surfaceAlt,
   },
-  heroTop: {
+  headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: uiTheme.spacing.md,
+    justifyContent: 'space-between',
+    gap: uiTheme.spacing.lg,
   },
-  heroText: {
+  headerText: {
     flex: 1,
     gap: uiTheme.spacing.xs,
+  },
+  subtitle: {
+    color: uiTheme.colors.muted,
+    maxWidth: 520,
   },
   heroBadge: {
     width: 38,
@@ -305,25 +289,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     ...uiTheme.shadows.soft,
   },
-  continueRow: {
+  ctaRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    flexWrap: 'wrap',
     gap: uiTheme.spacing.md,
   },
-  nowContent: {
-    gap: uiTheme.spacing.xs,
+  gridRow: {
+    flexDirection: 'column',
+    gap: uiTheme.spacing.lg,
   },
-  iconTile: {
-    width: 44,
-    height: 44,
-    borderRadius: uiTheme.radius.md,
-    backgroundColor: uiTheme.colors.surface,
+  gridRowWide: {
+    flexDirection: 'row',
+  },
+  cardHeaderRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-  },
-  flexBlock: {
-    flex: 1,
-    gap: uiTheme.spacing.xs,
+    justifyContent: 'space-between',
+    marginBottom: uiTheme.spacing.md,
   },
   upperMuted: {
     color: uiTheme.colors.muted,
@@ -333,59 +315,60 @@ const styles = StyleSheet.create({
   mutedText: {
     color: uiTheme.colors.muted,
   },
-  fullWidthButton: {
-    alignSelf: 'stretch',
+  currentDetail: {
+    gap: uiTheme.spacing.xs,
+    marginBottom: uiTheme.spacing.md,
   },
-  resumeButton: {
-    minWidth: 90,
+  quickHeader: {
+    gap: uiTheme.spacing.xs,
+    marginBottom: uiTheme.spacing.md,
   },
   chipsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: uiTheme.spacing.sm,
+    marginBottom: uiTheme.spacing.md,
   },
-  premiumCard: {
+  premiumBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: uiTheme.spacing.sm,
     borderRadius: uiTheme.radius.lg,
-    padding: uiTheme.spacing.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: uiTheme.spacing.md,
+    borderWidth: 1,
+    borderColor: uiTheme.colors.stroke,
+    backgroundColor: uiTheme.colors.surface,
+    paddingVertical: uiTheme.spacing.sm,
+    paddingHorizontal: uiTheme.spacing.md,
+    marginBottom: uiTheme.spacing.md,
   },
-  premiumIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: uiTheme.radius.pill,
-    backgroundColor: uiTheme.colors.whiteOverlay,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  premiumTitle: {
-    color: uiTheme.colors.text,
-    fontWeight: '600',
-  },
-  columnRow: {
-    gap: uiTheme.spacing.md,
-  },
-  templateCard: {
-    flex: 1,
-    marginTop: uiTheme.spacing.md,
-    gap: uiTheme.spacing.md,
-  },
-  templateTop: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  templateIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: uiTheme.radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  metaText: {
+  premiumText: {
     color: uiTheme.colors.subtext,
     fontWeight: '600',
+  },
+  templateGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: uiTheme.spacing.sm,
+  },
+  templateIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: uiTheme.radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  templateTile: {
+    gap: uiTheme.spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  templateTilePressed: {
+    opacity: 0.95,
+    transform: [{ scale: 0.99 }],
+  },
+  templateText: {
+    flex: 1,
+    gap: uiTheme.spacing.xs,
   },
   modalBackdrop: {
     flex: 1,

@@ -18,10 +18,10 @@ export const Card = ({ children, style }: CardProps) => (
 const styles = StyleSheet.create({
   card: {
     backgroundColor: uiTheme.colors.card,
-    borderRadius: uiTheme.radius.lg,
+    borderRadius: uiTheme.radius.xl,
     borderWidth: 1,
     borderColor: uiTheme.colors.stroke,
-    padding: uiTheme.spacing.lg,
+    padding: uiTheme.spacing.xxl,
     overflow: 'hidden',
     ...uiTheme.shadows.soft,
   },

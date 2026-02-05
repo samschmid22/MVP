@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAppStore } from '../storage/appStore';
 import { Exercise, ExerciseCategory } from '../types/models';
 import { getAnimationKeyForExercise } from '../config/exerciseAnimationMap';
-import { AppText, Button, Card, Chip, ExerciseAnimation, Screen, SectionHeader, getFloatingTabBarPadding } from '../ui/components';
+import { AppText, Button, Card, Chip, ExerciseAnimation, PageContainer, Screen, SectionHeader, getFloatingTabBarPadding } from '../ui/components';
 import { uiTheme } from '../ui/theme';
 
 const categories: Array<'All' | ExerciseCategory> = [
@@ -64,99 +64,102 @@ export const LibraryScreen = () => {
   };
 
   return (
-    <Screen>
-      <FlatList
-        data={filtered}
-        key={String(columns)}
-        numColumns={columns}
-        keyExtractor={(item) => item.id}
-        columnWrapperStyle={columns > 1 ? styles.columnRow : undefined}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[styles.content, { paddingBottom: getFloatingTabBarPadding(insets.bottom) + uiTheme.spacing.lg }]}
-        ListHeaderComponent={
-          <View style={styles.header}>
-            <SectionHeader title="Exercise Library" subtitle="Search, filter, and save favorites." />
-            <View style={styles.searchWrap}>
-              <Ionicons name="search" size={18} color={uiTheme.colors.muted} />
-              <TextInput
-                value={search}
-                onChangeText={setSearch}
-                style={styles.searchInput}
-                placeholder="Search exercises or tags"
-                placeholderTextColor={uiTheme.colors.muted}
+    <Screen padded={false}>
+      <PageContainer>
+        <FlatList
+          data={filtered}
+          key={String(columns)}
+          numColumns={columns}
+          keyExtractor={(item) => item.id}
+          columnWrapperStyle={columns > 1 ? styles.columnRow : undefined}
+          showsVerticalScrollIndicator={false}
+          style={styles.list}
+          contentContainerStyle={[styles.content, { paddingBottom: getFloatingTabBarPadding(insets.bottom) + uiTheme.spacing.lg }]}
+          ListHeaderComponent={
+            <View style={styles.header}>
+              <SectionHeader title="Exercise Library" subtitle="Search, filter, and save favorites." />
+              <View style={styles.searchWrap}>
+                <Ionicons name="search" size={18} color={uiTheme.colors.muted} />
+                <TextInput
+                  value={search}
+                  onChangeText={setSearch}
+                  style={styles.searchInput}
+                  placeholder="Search exercises or tags"
+                  placeholderTextColor={uiTheme.colors.muted}
+                />
+              </View>
+              <View style={styles.chipsRow}>
+                {categories.map((item) => (
+                  <Chip key={item} label={item} selected={category === item} onPress={() => setCategory(item)} />
+                ))}
+              </View>
+              <Button
+                label={favoritesOnly ? 'Favorites only' : 'Show favorites'}
+                variant={favoritesOnly ? 'outline' : 'secondary'}
+                onPress={() => setFavoritesOnly((prev) => !prev)}
+                icon={
+                  <Ionicons
+                    name={favoritesOnly ? 'heart' : 'heart-outline'}
+                    size={16}
+                    color={favoritesOnly ? uiTheme.colors.brandPink : uiTheme.colors.muted}
+                  />
+                }
+                style={styles.favoritesButton}
               />
             </View>
-            <View style={styles.chipsRow}>
-              {categories.map((item) => (
-                <Chip key={item} label={item} selected={category === item} onPress={() => setCategory(item)} />
-              ))}
-            </View>
-            <Button
-              label={favoritesOnly ? 'Favorites only' : 'Show favorites'}
-              variant={favoritesOnly ? 'outline' : 'secondary'}
-              onPress={() => setFavoritesOnly((prev) => !prev)}
-              icon={
-                <Ionicons
-                  name={favoritesOnly ? 'heart' : 'heart-outline'}
-                  size={16}
-                  color={favoritesOnly ? uiTheme.colors.brandPink : uiTheme.colors.muted}
-                />
-              }
-              style={styles.favoritesButton}
-            />
-          </View>
-        }
-        ListEmptyComponent={
-          <Card>
-            <AppText variant="h3">No exercises found</AppText>
-            <AppText variant="caption" style={styles.mutedText}>
-              Try another search or reset filters.
-            </AppText>
-          </Card>
-        }
-        renderItem={({ item }) => {
-          const animationKey = getAnimationKeyForExercise(item);
-          const cardTint = getCardTint(item.category);
-          const isFavorite = favoriteExerciseIds.includes(item.id);
-          return (
-            <Pressable
-              style={({ pressed }) => [styles.exerciseCardPressable, pressed && styles.exerciseCardPressed]}
-              onPress={() => setSelectedExercise(item)}
-            >
-              <Card style={[styles.exerciseCard, { backgroundColor: cardTint }]}>
-                <View style={styles.cardHeader}>
-                  <ExerciseAnimation animationKey={animationKey} size="card" />
-                  <Pressable
-                    onPress={(event) => {
-                      event.stopPropagation();
-                      toggleFavorite(item.id);
-                    }}
-                    hitSlop={8}
-                    style={styles.heartButton}
-                  >
-                    <Ionicons
-                      name={isFavorite ? 'heart' : 'heart-outline'}
-                      size={18}
-                      color={isFavorite ? uiTheme.colors.brandPink : uiTheme.colors.muted}
-                    />
-                  </Pressable>
-                </View>
-                <AppText variant="h3" numberOfLines={2}>
-                  {item.name}
-                </AppText>
-                <AppText variant="caption" style={styles.mutedText}>
-                  {item.defaultDurationSec}s • {item.difficulty}
-                </AppText>
-                <View style={styles.tags}>
-                  {item.tags.slice(0, 2).map((tag) => (
-                    <Chip key={tag} label={tag} style={styles.tagChip} />
-                  ))}
-                </View>
-              </Card>
-            </Pressable>
-          );
-        }}
-      />
+          }
+          ListEmptyComponent={
+            <Card>
+              <AppText variant="h3">No exercises found</AppText>
+              <AppText variant="caption" style={styles.mutedText}>
+                Try another search or reset filters.
+              </AppText>
+            </Card>
+          }
+          renderItem={({ item }) => {
+            const animationKey = getAnimationKeyForExercise(item);
+            const cardTint = getCardTint(item.category);
+            const isFavorite = favoriteExerciseIds.includes(item.id);
+            return (
+              <Pressable
+                style={({ pressed }) => [styles.exerciseCardPressable, pressed && styles.exerciseCardPressed]}
+                onPress={() => setSelectedExercise(item)}
+              >
+                <Card style={[styles.exerciseCard, { backgroundColor: cardTint }]}>
+                  <View style={styles.cardHeader}>
+                    <ExerciseAnimation animationKey={animationKey} size="card" />
+                    <Pressable
+                      onPress={(event) => {
+                        event.stopPropagation();
+                        toggleFavorite(item.id);
+                      }}
+                      hitSlop={8}
+                      style={styles.heartButton}
+                    >
+                      <Ionicons
+                        name={isFavorite ? 'heart' : 'heart-outline'}
+                        size={18}
+                        color={isFavorite ? uiTheme.colors.brandPink : uiTheme.colors.muted}
+                      />
+                    </Pressable>
+                  </View>
+                  <AppText variant="h3" numberOfLines={2}>
+                    {item.name}
+                  </AppText>
+                  <AppText variant="caption" style={styles.mutedText}>
+                    {item.defaultDurationSec}s • {item.difficulty}
+                  </AppText>
+                  <View style={styles.tags}>
+                    {item.tags.slice(0, 2).map((tag) => (
+                      <Chip key={tag} label={tag} style={styles.tagChip} />
+                    ))}
+                  </View>
+                </Card>
+              </Pressable>
+            );
+          }}
+        />
+      </PageContainer>
       <Modal
         animationType="slide"
         transparent
@@ -192,8 +195,11 @@ export const LibraryScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  list: {
+    flex: 1,
+  },
   content: {
-    paddingTop: uiTheme.spacing.md,
+    paddingTop: uiTheme.spacing.sm,
     gap: uiTheme.spacing.md,
   },
   header: {
