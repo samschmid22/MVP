@@ -36,19 +36,11 @@ export const AppButton = ({
         </AppText>
       </LinearGradient>
     ) : null}
-    {variant === 'secondary' ? (
-      <View style={styles.secondary}>
-        {icon ? <View style={styles.icon}>{icon}</View> : null}
-        <AppText variant="button" style={styles.secondaryText}>
-          {label}
-        </AppText>
-      </View>
-    ) : null}
-    {variant === 'outline' ? (
-      <LinearGradient colors={uiTheme.gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.outlineBorder}>
-        <View style={styles.outlineInner}>
+    {variant === 'secondary' || variant === 'outline' ? (
+      <LinearGradient colors={uiTheme.gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.secondaryBorder}>
+        <View style={styles.secondaryInner}>
           {icon ? <View style={styles.icon}>{icon}</View> : null}
-          <AppText variant="button" style={styles.outlineText}>
+          <AppText variant="button" style={styles.secondaryText}>
             {label}
           </AppText>
         </View>
@@ -85,31 +77,22 @@ const styles = StyleSheet.create({
   primaryText: {
     color: uiTheme.colors.white,
   },
-  secondary: {
-    ...shared,
-    backgroundColor: uiTheme.colors.surfaceAlt,
-    borderWidth: 1,
-    borderColor: uiTheme.colors.stroke,
-  },
-  secondaryText: {
-    color: uiTheme.colors.text,
-  },
-  outlineBorder: {
+  secondaryBorder: {
     ...shared,
     padding: 1,
   },
-  outlineInner: {
+  secondaryInner: {
     minHeight: 46,
     borderRadius: uiTheme.radius.pill,
-    backgroundColor: 'rgba(243, 238, 255, 0.55)',
+    backgroundColor: 'rgba(15, 23, 42, 0.06)',
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
     paddingHorizontal: uiTheme.spacing.xl,
     gap: uiTheme.spacing.xs,
   },
-  outlineText: {
-    color: uiTheme.colors.brandPurple,
+  secondaryText: {
+    color: uiTheme.colors.text,
   },
   ghost: {
     minHeight: 40,

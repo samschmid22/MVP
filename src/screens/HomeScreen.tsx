@@ -124,16 +124,18 @@ export const HomeScreen = () => {
 
           <View style={styles.ctaRow}>
             <Button label="Start session" variant="primary" onPress={handleStartWorkout} />
-            <Button label="Build workout" variant="outline" onPress={() => navigation.navigate('WorkoutBuilder')} />
+            <Button label="Build workout" variant="secondary" onPress={() => navigation.navigate('WorkoutBuilder')} />
           </View>
 
           <View style={[styles.gridRow, isWide && styles.gridRowWide]}>
             <Card style={styles.sectionSurface}>
               <View style={styles.cardHeaderRow}>
                 <AppText variant="h3">Current session</AppText>
-                <AppText variant="caption" style={styles.upperMuted}>
-                  {lastWorkout ? 'In progress' : 'Not started'}
-                </AppText>
+                <View style={styles.statusBadge}>
+                  <AppText variant="caption" style={styles.statusText}>
+                    {lastWorkout ? 'In progress' : 'Not started'}
+                  </AppText>
+                </View>
               </View>
               {lastWorkout ? (
                 <View style={styles.currentDetail}>
@@ -262,7 +264,7 @@ export const HomeScreen = () => {
 
 const styles = StyleSheet.create({
   pageStack: {
-    gap: uiTheme.spacing.xl,
+    gap: uiTheme.spacing.xxl,
   },
   sectionSurface: {
     backgroundColor: uiTheme.colors.surfaceAlt,
@@ -311,6 +313,20 @@ const styles = StyleSheet.create({
     color: uiTheme.colors.muted,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+  },
+  statusBadge: {
+    paddingHorizontal: uiTheme.spacing.sm,
+    paddingVertical: uiTheme.spacing.xs,
+    borderRadius: uiTheme.radius.pill,
+    backgroundColor: uiTheme.colors.surface,
+    borderWidth: 1,
+    borderColor: uiTheme.colors.stroke,
+  },
+  statusText: {
+    color: uiTheme.colors.subtext,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+    fontWeight: '600',
   },
   mutedText: {
     color: uiTheme.colors.muted,
