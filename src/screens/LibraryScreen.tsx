@@ -93,19 +93,20 @@ export const LibraryScreen = () => {
                   <Chip key={item} label={item} selected={category === item} onPress={() => setCategory(item)} />
                 ))}
               </View>
-              <Button
-                label={favoritesOnly ? 'Favorites only' : 'Show favorites'}
-                variant={favoritesOnly ? 'outline' : 'secondary'}
-                onPress={() => setFavoritesOnly((prev) => !prev)}
-                icon={
-                  <Ionicons
-                    name={favoritesOnly ? 'heart' : 'heart-outline'}
-                    size={16}
-                    color={favoritesOnly ? uiTheme.colors.brandPink : uiTheme.colors.muted}
-                  />
-                }
-                style={styles.favoritesButton}
-              />
+            <Button
+              label={favoritesOnly ? 'Favorites only' : 'Show favorites'}
+              variant={favoritesOnly ? 'outline' : 'secondary'}
+              onPress={() => setFavoritesOnly((prev) => !prev)}
+              textColor={uiTheme.colors.white}
+              icon={
+                <Ionicons
+                  name={favoritesOnly ? 'heart' : 'heart-outline'}
+                  size={16}
+                  color={uiTheme.colors.white}
+                />
+              }
+              style={styles.favoritesButton}
+            />
             </View>
           }
           ListEmptyComponent={

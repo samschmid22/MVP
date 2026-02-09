@@ -123,8 +123,13 @@ export const HomeScreen = () => {
           </View>
 
           <View style={styles.ctaRow}>
-            <Button label="Start session" variant="primary" onPress={handleStartWorkout} />
-            <Button label="Build workout" variant="secondary" onPress={() => navigation.navigate('WorkoutBuilder')} />
+            <Button label="Start session" variant="primary" onPress={handleStartWorkout} textColor={uiTheme.colors.white} />
+            <Button
+              label="Build workout"
+              variant="secondary"
+              onPress={() => navigation.navigate('WorkoutBuilder')}
+              textColor={uiTheme.colors.white}
+            />
           </View>
 
           <View style={[styles.gridRow, isWide && styles.gridRowWide]}>
@@ -157,6 +162,7 @@ export const HomeScreen = () => {
                     ? navigation.navigate('Player', { workoutId: lastWorkout.id })
                     : handleStartWorkout()
                 }
+                textColor={uiTheme.colors.white}
               />
             </Card>
 

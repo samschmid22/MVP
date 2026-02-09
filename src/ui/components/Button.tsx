@@ -13,6 +13,7 @@ type ButtonProps = {
   variant?: ButtonVariant;
   style?: StyleProp<ViewStyle>;
   disabled?: boolean;
+  textColor?: string;
 };
 
 export const AppButton = ({
@@ -22,6 +23,7 @@ export const AppButton = ({
   variant = 'primary',
   style,
   disabled = false,
+  textColor,
 }: ButtonProps) => (
   <Pressable
     disabled={disabled}
@@ -31,7 +33,7 @@ export const AppButton = ({
     {variant === 'primary' ? (
       <LinearGradient colors={uiTheme.gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.primary}>
         {icon ? <View style={styles.icon}>{icon}</View> : null}
-        <AppText variant="button" style={styles.primaryText}>
+        <AppText variant="button" style={[styles.primaryText, textColor ? { color: textColor } : null]}>
           {label}
         </AppText>
       </LinearGradient>
@@ -40,7 +42,7 @@ export const AppButton = ({
       <LinearGradient colors={uiTheme.gradients.brand} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.secondaryBorder}>
         <View style={styles.secondaryInner}>
           {icon ? <View style={styles.icon}>{icon}</View> : null}
-          <AppText variant="button" style={styles.secondaryText}>
+          <AppText variant="button" style={[styles.secondaryText, textColor ? { color: textColor } : null]}>
             {label}
           </AppText>
         </View>
@@ -49,7 +51,7 @@ export const AppButton = ({
     {variant === 'ghost' ? (
       <View style={styles.ghost}>
         {icon ? <View style={styles.icon}>{icon}</View> : null}
-        <AppText variant="button" style={styles.ghostText}>
+        <AppText variant="button" style={[styles.ghostText, textColor ? { color: textColor } : null]}>
           {label}
         </AppText>
       </View>
